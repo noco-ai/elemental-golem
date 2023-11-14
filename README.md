@@ -1,19 +1,24 @@
 # Elemental Golem
+
 Elemental Golem is a project that defines and serves AI models using a modular system with a `golem.json` configuration file and a handler that implements the call and response from the model utilizing AMQP as the message broker. It is the backend used by Arcane Bridge and Spell Book for interating with AI models based off Pytorch and similar libraries. It
 currently focuses soley on inference tasks.
 
 ## Stack Architecture
-![Software stack diagram](https://github.com/noco-ai/spellbook-docker/stack.png)
+
+![Software stack diagram](https://github.com/noco-ai/spellbook-docker/blob/master/stack.png)
 
 ## Dependencies
+
 - Hashicorp Vault >= 1.1
 - RabbitMQ >= 3.6.10
 
 ### Required Vault Keys
+
 In order to function Elemental Golem need to connect to a Vault server to retervice secrets and configuration data.
 The following information needs to be stored in Vault for Element Golem to start.
 
 ### **core/amqp**
+
 ```json
 {
   "host": "127.0.0.1",
@@ -26,12 +31,15 @@ The following information needs to be stored in Vault for Element Golem to start
 ## Install Guide
 
 ### Docker Install
+
 See https://github.com/noco-ai/spellbook-docker for installing the entire Spell Book stack with Docker Compose.
 
 ### CLI Parameters and Server Commands
+
 Elemental Golem provides several CLI commands for controlling the software. Below is a detailed explanation of them.
 
 ### **Command-line Interface (CLI) Parameters**:
+
 - `--server-id`: A unique identifier for the server. Required parameter.
 - `--vault-host`: The address of the Vault server host. Required parameter.
 - `--vault-token-file`: The path to the file containing the Vault token. Defaults to './vault-token' if not specified.
@@ -39,6 +47,7 @@ Elemental Golem provides several CLI commands for controlling the software. Belo
 - `--shared-models`: If set to true all downloads for HuggingFace will be do to the data/cache/ folder. This is useful for shared drives and docker.
 
 ### **Commands to Control the Server over AMQP**:
+
 - `system_info`: Returns details about the system, such as server ID, system status (ONLINE or STARTING), installed skills, and running skills.
 - `run_skill`: Adds and runs a skill on the server based on the `skill_details` provided in the message body.
 - `stop_skill`: Stops a running skill based on the `skill_details` provided in the message body.
@@ -51,7 +60,9 @@ Each command request should contain a `command`, `return_routing_key`, `return_e
 > Note: It is crucial to reject the message correctly if any error occurs during command execution to prevent the message broker from requeueing the message.
 
 ### LLM Payload Validation
+
 The LLM handlers check the AMQP payload for the following data:
+
 - **max_new_tokens** (Number, Required): Your desired maximum tokens generated.
 - **top_p** (Number, Required): Your desired randomness in response (0.0 to 1.0).
 - **temperature** (Number, Required): Your desired "temperature" of output (0.0 to 1.0).
@@ -64,21 +75,22 @@ The LLM handlers check the AMQP payload for the following data:
 - **start_response** (String, Optional): Specifies the response to start with.
 - **raw** (String, Optional): Raw content to use for generating the prompt.
 - **messages** (Array, Required): An array of message objects with these properties:
-    - **role** (String, Required): Role in the message.
-    - **content** (String, Required): Content of the message.
+  - **role** (String, Required): Role in the message.
+  - **content** (String, Required): Content of the message.
 
 ## golem.json
+
 The golem.json file defines the handlers and models/skills available for loading and inference. Here is a high level overview of the the fields found in the file.
 The best reference for this at the moment is to look in the modules/noco-ai/... to file and look at a handler that is implements the handler for similar type of model.
 If your model uses transformers of 🤗 pipelines you can add a new definition for the model to an exisiting handler.
 
 The configuration for Elemental Golem is stored in a JSON file. Below is a breakdown of each field in the JSON file:
 
-- `label`: Name of the module. 
+- `label`: Name of the module.
 - `description`: Purpose of the module, what the skill does.
 - `script`: Python script to use in running the project.
 - `multi_gpu_support`: Boolean indicating multi-gpu support.
-- `repository`: Stores information about the code repository. 
+- `repository`: Stores information about the code repository.
   - `url`: URL to the project repository.
   - `folder`: Specific directory within the repository URL.
 - `skills`: An array containing model definitions. Each model has its properties:
@@ -95,7 +107,8 @@ The configuration for Elemental Golem is stored in a JSON file. Below is a break
   - `options`: An array of global options.
 
 ### Model Configuration
-Each model/skill can define configurtion information that is available to the handler. If these have keys that match the global configuration keys 
+
+Each model/skill can define configurtion information that is available to the handler. If these have keys that match the global configuration keys
 for the module they are merged with the user set values overriding the defaults. Here is an example of configuration values a LLM handler expects.
 
 - `max_seq_len`: Specifies the maximum sequence length for model input.
@@ -105,8 +118,9 @@ for the module they are merged with the user set values overriding the defaults.
 - `system_message`: Describes the nature of interaction between a user and the AI.
 
 ### Global Configuration
+
 The global configuration is read by the frontend which allows the user to override the system default. What configuration options will vary by the type
-of handler. Module-wide configuration options include. 
+of handler. Module-wide configuration options include.
 
 - `vault_path`: Secure storage path for sensitive data like API keys.
 - `options`: An array of global parameters each with:
@@ -117,12 +131,16 @@ of handler. Module-wide configuration options include.
   - `default`: The default value if none is provided.
 
 ### Repository
+
 Some modules require that another repo is installed to allow for a skill handler to work correctly. These are defines at a global level for the handler.
+
 - `url`: URL to the project repository.
-- `folder`: The path to the folder within the repository. 
+- `folder`: The path to the folder within the repository.
 
 ## handler.py
+
 The handler is a Python class inheriting from `BaseHandler` or `LlmHandler` that is responsible for handling messages. Each handler must implement the following functions:
+
 - `__init__`: Initialize the handler.
 - `validate`: Validates a request. It should return a boolean indicating whether the request is valid and a list of errors (if any).
 - `execute`: Executes the model. It receives the model and request. This method is responsible for getting the request data, making the API call, and returning API response.
@@ -133,7 +151,7 @@ class ExampleHandler(BaseHandler):
     def __init__(self):
         super().__init__()
 
-    def validate(self, request):        
+    def validate(self, request):
         return self.validate_fields(request, [("text", len)])
 
     def execute(self, model, request):
@@ -147,4 +165,4 @@ class ExampleHandler(BaseHandler):
 Remember to replace `#...` in `execute` with the correct implementation that fits your scenario.
 The response must return `{ "content": response}` where `response` is the content you wish to send back.
 
-*Configuration, requests, and responses vary based on how the handler is implemented.*
+_Configuration, requests, and responses vary based on how the handler is implemented._
