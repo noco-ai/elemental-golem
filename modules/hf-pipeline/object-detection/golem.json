@@ -1,0 +1,56 @@
+{
+    "label": "🤗 Object Detection",
+    "description": "Handler for loading any model that is compatible with HuggingFace Object Detection pipeline.",
+    "unique_key": "hf_object_detection",
+    "script": "object-detection.py",
+    "skills": [
+        {
+            "name": "facebook/detr-resnet-101",
+            "label": "Detr Resnet 101",
+            "routing_key": "detr_resnet_101",
+            "use": ["object_detection"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2100 },
+            "model": [{
+                "name": "facebook/detr-resnet-101",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "facebook/detr-resnet-50",
+            "label": "Detr Resnet 50",
+            "routing_key": "detr_resnet_50",
+            "use": ["object_detection"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1900 },
+            "model": [{
+                "name": "facebook/detr-resnet-50",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "hustvl/yolos-tiny",
+            "label": "Yolos Tiny",
+            "routing_key": "yolos_tiny",
+            "use": ["object_detection"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1600 },
+            "model": [{
+                "name": "hustvl/yolos-tiny",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "hustvl/yolos-small",
+            "label": "Yolos Small",
+            "routing_key": "yolos_small",
+            "use": ["object_detection"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2200 },
+            "model": [{
+                "name": "hustvl/yolos-small",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

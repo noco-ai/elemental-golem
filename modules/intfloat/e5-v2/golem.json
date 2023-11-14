@@ -1,0 +1,32 @@
+{
+    "label": "E5 v2 Embeddings",
+    "description": "Handler for loading the E5 v2 embedding models.",
+    "unique_key": "e5_v2",
+    "script": "e5-v2.py",
+    "skills": [
+        {
+            "name": "intfloat/e5-large-v2",
+            "label": "E5 Large v2",
+            "routing_key": "e5_large_v2",
+            "use": ["text_embedding"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2500 },
+            "model": [{
+                "name": "intfloat/e5-large-v2",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "intfloat/e5-base-v2",
+            "label": "E5 Base v2",
+            "routing_key": "e5_base_v2",
+            "use": ["text_embedding"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1600 },
+            "model": [{
+                "name": "intfloat/e5-base-v2",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

@@ -1,0 +1,31 @@
+{
+    "label": "Stable Diffusion v1.5",
+    "description": "Handler for loading Stable Diffusion v1.5 models.",
+    "unique_key": "sd_15",
+    "script": "handler.py",
+    "skills": [
+        {
+            "label":  "Stable Diffusion v1.5",
+            "routing_key": "stable_diffusion_v15",            
+            "use": ["image_generation"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 2400 },
+            "model": [{
+                "name": "runwayml/stable-diffusion-v1-5",
+                "provider": "huggingface"
+            }]            
+        },
+        {
+            "label":  "DreamShaper",
+            "routing_key": "dream_shaper_image_gen",
+            "use": ["image_generation"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 2400 },
+            "model": [{
+                "name": "civitai/dreamshaper/128713.safetensors",
+                "provider": "civitai",
+                "url": "https://civitai.com/api/download/models/128713?type=Model&format=SafeTensor&size=pruned&fp=fp16"
+            }]            
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "label": "Instructor Embeddings",
+    "description": "Handler for loading instructor embedding models.",
+    "unique_key": "instructor",
+    "script": "instructor.py",
+    "skills": [
+        {
+            "name": "hkunlp/instructor-xl",
+            "label": "Instructor Xl",
+            "routing_key": "instructor_xl",
+            "use": ["text_embedding"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 5900 },
+            "model": [{
+                "name": "hkunlp/instructor-xl",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "hkunlp/instructor-large",
+            "label": "Instructor Large",
+            "routing_key": "instructor_large",
+            "use": ["text_embedding"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2500 },
+            "model": [{
+                "name": "hkunlp/instructor-large",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "properties": {
+        "prompt": {
+            "type": "string"
+        },
+        "seconds": {
+            "type": "number"
+        },
+        "guidance_scale": {
+            "type": "number"
+        },
+        "progress": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "required": ["prompt"]
+}

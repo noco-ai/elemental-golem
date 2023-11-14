@@ -1,0 +1,20 @@
+{
+    "label": "🤗 Visual QA Handler",
+    "description": "Handler for loading any model that is compatible with HuggingFace Visual QA pipeline.",
+    "unique_key": "hf_vqa",
+    "script": "visual-question-answering.py",
+    "skills": [
+        {
+            "name": "dandelin/vilt-b32-finetuned-vqa",
+            "label": "Vilt B32 Finetuned VQA",
+            "routing_key": "vilt_b32_finetuned_vqa",
+            "use": ["visual_qa"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1900 },
+            "model": [{
+                "name": "dandelin/vilt-b32-finetuned-vqa",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

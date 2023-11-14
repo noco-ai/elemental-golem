@@ -1,0 +1,19 @@
+data/enabled_skills.json
+data/models/
+data/
+repos/
+*.pyc
+vault-token
+.vscode/
+
+# core modules w/ external reps
+modules/turboderp/exllama/*
+modules/turboderp/exllama/.*
+!modules/turboderp/exllama/golem.json
+!modules/turboderp/exllama/golem-generator.py
+modules/turboderp/exllama2/*
+modules/turboderp/exllama2/.*
+modules/haotian-liu/llava/*
+modules/haotian-liu/llava/.*
+!modules/haotian-liu/llava/golem.json
+!modules/haotian-liu/llava/golem-generator.py

@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties": {
+        "prompt": {
+            "type": "string"
+        },
+        "height": {
+            "type": "integer",
+            "default": 512
+        },
+        "width": {
+            "type": "integer",
+            "default": 512
+        },
+        "steps": {
+            "type": "integer",
+            "default": 50
+        },
+        "negative_prompt": {
+            "type": "string",
+            "default": ""
+        },
+        "guidance_scale": {
+            "type": "number",
+            "default": 7.5
+        }
+    },
+    "required": ["prompt"]
+}

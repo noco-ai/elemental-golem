@@ -1,0 +1,50 @@
+{
+    "label": "MusicGen",
+    "description": "Handler for loading Meta MusicGen models.",
+    "unique_key": "musicgen",
+    "script": "handler.py",
+    "skills": [
+        {
+            "label":  "MusicGen Small",
+            "routing_key": "musicgen_small",            
+            "use": ["music_generation"],        
+            "available_precision": { "cpu": ["full"], "cuda": ["full"] },
+            "memory_usage": { "full": 3600 },
+            "model": [{
+                "name": "facebook/musicgen-small",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "progress_label": "Generating Music"
+            }            
+        },
+        {
+            "label":  "MusicGen Medium",
+            "routing_key": "musicgen_medium",            
+            "use": ["music_generation"],        
+            "available_precision": { "cpu": ["full"], "cuda": ["full"] },
+            "memory_usage": { "full": 0 },
+            "model": [{
+                "name": "facebook/musicgen-medium",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "progress_label": "Generating Music"
+            }            
+        },
+        {
+            "label":  "MusicGen Large",
+            "routing_key": "musicgen_large",            
+            "use": ["music_generation"],        
+            "available_precision": { "cpu": ["full"], "cuda": ["full"] },
+            "memory_usage": { "full": 0 },
+            "model": [{
+                "name": "facebook/musicgen-large",
+                "provider": "huggingface"
+            }]            ,
+            "configuration": {
+                "progress_label": "Generating Music"
+            }            
+        }
+    ]
+}

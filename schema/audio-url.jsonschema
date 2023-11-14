@@ -1,0 +1,7 @@
+{
+    "type": "object",
+    "properties": {
+        "audio_url": { "type": "string" }     
+    },
+    "required": ["audio_url"]
+}

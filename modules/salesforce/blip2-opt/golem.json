@@ -1,0 +1,20 @@
+{
+    "label": "Saleforce Blip2",
+    "description": "Handler for loading Salesforce Blip 2 models/",
+    "unique_key": "salesforce_blip2",
+    "script": "blip2-opt.py",
+    "skills": [
+        {
+            "name": "Salesforce/blip2-opt-2.7b",    
+            "label":  "BLIP v2 OPT 2.7b",
+            "routing_key": "blip2_opt_27b",            
+            "use": ["visual_qa"],        
+            "available_precision": { "cuda": ["full", "half"], "cpu": ["full"] },
+            "memory_usage": { "full": 16100, "half": 8900 },
+            "model": [{
+                "name": "Salesforce/blip2-opt-2.7b",
+                "provider": "huggingface"
+            }]            
+        }
+    ]
+}

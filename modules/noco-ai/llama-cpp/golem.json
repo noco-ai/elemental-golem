@@ -1,0 +1,120 @@
+{
+    "label": "Llama CPP",
+    "description": "Handler for loading Llama CPP models.",
+    "unique_key": "llama_cpp",
+    "script": "llama-cpp.py",
+    "skills": [        
+        {
+            "label":  "Llama2 7B Chat (GGUF)",
+            "routing_key": "llama_7b_chat_gguf",
+            "use": ["language_model"],        
+            "available_precision": { "cpu": ["4-bit", "6-bit"], "cuda": ["4-bit", "6-bit"] },
+            "memory_usage": { "4-bit": 6000, "6-bit": 8000 },            
+            "model": [{
+                "name": "TheBloke/Llama-2-7B-chat-GGUF",
+                "provider": "huggingface",
+                "files": {
+                    "4-bit": "llama-2-7b-chat.Q4_0.gguf",
+                    "5-bit": "llama-2-7b-chat.Q5_0.gguf",
+                    "6-bit": "llama-2-7b-chat.Q6_K.gguf"
+                }
+            }],
+            "configuration": {
+                "model_layers": 43,
+                "num_threads": -1,
+                "model_type": "chat",
+                "max_seq_len": 4096,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>", "[INST]", "</s>"],
+                "system_prompt_format": "{user_role} <<SYS>>{system_prompt}<</SYS>>\n{prompt} {ai_role} {response}",
+                "system_message": "You are an helpful assistant.",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }        
+        },
+        {
+            "label":  "Llama2 13B Chat (GGUF)",
+            "routing_key": "llama_13b_chat_gguf",            
+            "use": ["language_model"],        
+            "available_precision": { "cpu": ["4-bit", "6-bit"], "cuda": ["4-bit", "6-bit"] },
+            "memory_usage": { "4-bit": 11000, "6-bit": 13800 },            
+            "model": [{
+                "name": "TheBloke/Llama-2-13B-chat-GGUF",
+                "provider": "huggingface",
+                "files": {
+                    "4-bit": "llama-2-13b-chat.Q4_0.gguf",
+                    "6-bit": "llama-2-13b-chat.Q6_K.gguf"
+                }
+            }],
+            "configuration": {
+                "model_layers": 43,
+                "num_threads": -1,
+                "model_type": "chat",
+                "max_seq_len": 4096,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>", "[INST]", "</s>"],
+                "system_prompt_format": "{user_role} <<SYS>>{system_prompt}<</SYS>>\n{prompt} {ai_role} {response}",
+                "system_message": "You are an helpful assistant.",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }        
+        },
+        {
+            "label":  "CodeLlama 34B Instruct (GGUF)",
+            "routing_key": "llama_34b_instruct_gguf",            
+            "use": ["language_model"],        
+            "available_precision": { "cpu": ["4-bit", "6-bit"], "cuda": ["4-bit", "6-bit"] },
+            "memory_usage": { "4-bit": 22000, "6-bit": 31500 },            
+            "model": [{
+                "name": "TheBloke/CodeLlama-34B-Instruct-GGUF",
+                "provider": "huggingface",
+                "files": {
+                    "4-bit": "codellama-34b-instruct.Q4_K_M.gguf",
+                    "6-bit": "codellama-34b-instruct.Q6_K.gguf"
+                }
+            }],
+            "configuration": {
+                "model_layers": 51,
+                "num_threads": -1,
+                "model_type": "instruct",
+                "max_seq_len": 16384,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>", "[INST]", "</s>"],
+                "system_message": "",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}\n\n"
+            }        
+        },
+        {
+            "label":  "Llama2 70B Chat (GGUF)",
+            "routing_key": "llama_70b_chat_gguf",            
+            "use": ["language_model"],        
+            "available_precision": { "cpu": ["4-bit", "5-bit", "6-bit"], "cuda": ["4-bit", "5-bit", "6-bit"] },
+            "memory_usage": { "4-bit": 41500, "5-bit": 48000, "6-bit": 60000 },            
+            "model": [{
+                "name": "TheBloke/Llama-2-70B-chat-GGUF",
+                "provider": "huggingface",
+                "files": {
+                    "4-bit": "llama-2-70b-chat.Q4_K_M.gguf",
+                    "5-bit": "llama-2-70b-chat.Q5_K_M.gguf",
+                    "6-bit": "llama-2-70b-chat.Q6_K.gguf"
+                },
+                "split": {
+                    "6-bit": ["-split-a", "-split-b"]
+                }
+            }],
+            "configuration": {
+                "model_layers": 83,
+                "num_threads": -1,
+                "model_type": "chat",
+                "max_seq_len": 4096,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>", "[INST]", "</s>"],
+                "system_prompt_format": "{user_role} <<SYS>>{system_prompt}<</SYS>>\n{prompt} {ai_role} {response}",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}",
+                "system_message": "You are an helpful assistant."
+            }        
+        }
+    ]    
+}

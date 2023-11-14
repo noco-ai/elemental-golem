@@ -1,0 +1,36 @@
+{
+    "label": "Bark Text to Speech",
+    "description": "Handler for loading Bark text to speech models.",
+    "unique_key": "bark",
+    "script": "handler.py",
+    "skills": [
+        {
+            "label":  "Bark Small",
+            "routing_key": "bark_small",            
+            "use": ["text_to_speech"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 2500 },
+            "model": [{
+                "name": "suno/bark-small",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "progress_label": "Generating Speech"
+            }            
+        },
+        {
+            "label":  "Bark Large",
+            "routing_key": "bark_large",            
+            "use": ["text_to_speech"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 5200 },
+            "model": [{
+                "name": "suno/bark",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "progress_label": "Generating Speech"
+            }            
+        }
+    ]
+}

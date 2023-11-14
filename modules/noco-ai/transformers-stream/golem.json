@@ -1,0 +1,154 @@
+{
+    "label": "🤗 Transfromers LLM",
+    "description": "Handler for loading any models that are compatible with HuggingFace transformers. Has only tested with Llama 2.",
+    "unique_key": "transformers_llm",
+    "script": "handler.py",    
+    "multi_gpu_support": true,
+    "multi_gpu_configurable": false,
+    "skills": [
+        {
+            "label":  "CodeLlama 7B Instruct 🤗",
+            "routing_key": "llama_v2_code_instruct_7b",            
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit", "8-bit", "full"] },
+            "memory_usage": { "4-bit": 5500, "8-bit": 8500, "full": 27000 },
+            "shortcut": "💻",
+            "moe_domain": [
+                "Systems Programming: Development of computer systems software.",
+                "Computer Networking: Study of computer systems that are interconnected via network."
+            ],         
+            "lora": [{
+                "name": "nocoai/function-hul-lora",
+                "moe_domain": [
+                    "Systems Programming: Development of computer systems software."
+                ],
+                "chat_history": -1
+            }],
+            "model": [{
+                "name": "codellama/CodeLlama-7B-Instruct-hf",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 16384,                
+                "stop_on": ["</s>", "[INST]"],
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",            
+                "system_prompt_format": "{user_role} <<SYS>>{system_prompt}<</SYS>>\n{prompt} {ai_role} {response}",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}",
+                "system_message": "You are an expert software development coding assistant. Wrap all code you output in ```."
+            }            
+        },
+        {
+            "label":  "CodeLlama 13B Instruct 🤗",
+            "routing_key": "llama_v2_code_instruct_13b",            
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 16100 },
+            "shortcut": "💻",
+            "moe_domain": [
+                "Systems Programming: Development of computer systems software.",
+                "Computer Networking: Study of computer systems that are interconnected via network."
+            ],            
+            "model": [{
+                "name": "codellama/CodeLlama-13B-Instruct-hf",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 16384,
+                "stop_on": ["</s>", "[INST]"],
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",                            
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}",
+                "system_prompt_format": "{user_role} <<SYS>>{system_prompt}<</SYS>>\n{prompt} {ai_role} {response}",
+                "system_message": "You are an expert software development coding assistant. Wrap all code you output in ```."
+            }
+        },
+        {
+            "label":  "CodeLlama 34B Instruct 🤗",
+            "routing_key": "llama_v2_code_instruct_34b",
+            "use": ["language_model"],
+            "shortcut": "💻",
+            "special_ability": ["coding"],
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 22000 },
+            "model": [{
+                "name": "codellama/CodeLlama-34b-Instruct-hf",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 16384,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["</s>", "[INST]"],
+                "system_prompt_format": "{user_role} <<SYS>>{system_prompt}<</SYS>>\n{prompt} {ai_role} {response}",
+                "system_message": "You are an expert software development coding assistant. Wrap all code you output in ```."
+            }
+        },
+        {
+            "label":  "CodeLlama 34B Python 🤗",
+            "routing_key": "llama_v2_code_python_34b",            
+            "use": ["language_model"],
+            "shortcut": "🐍",
+            "special_ability": ["coding"],
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 22000 },
+            "model": [{
+                "name": "codellama/CodeLlama-34B-Python-hf",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 16384,
+                "stop_on": ["[INST]"],
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",            
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}",
+                "system_prompt_format": "{user_role} <<SYS>>{system_prompt}<</SYS>>\n{prompt} {ai_role} {response}",
+                "system_message": "You are an expert software development coding assistant. Wrap all code you output in ```."
+            }
+        },
+        {
+            "label":  "CodeLlama 34B Phind v2 🤗",
+            "routing_key": "llama_v2_code_phind_v2",            
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 22500 },
+            "shortcut": "💻",
+            "special_ability": ["coding"],
+            "moe_domain": [
+                "Systems Programming: Development of computer systems software"
+            ],
+            "model": [{
+                "name": "Phind/Phind-CodeLlama-34B-v2",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 16384,                
+                "user_role": "### User Message\n",
+                "ai_role": "### Assistant\n",
+                "stop_on": ["</s>", "<stop>"],
+                "prompt_format": "{user_role}{prompt}\n\n{ai_role}{response}",
+                "system_prompt_format": "### System Prompt:\n{system_prompt}\n\n",
+                "system_message": "You are an expert software development coding assistant. Wrap all code you output in ```."
+            }
+        }
+    ],    
+    "configuration": {
+        "vault_path": "golem/transformers_llm",
+        "options": [
+            {
+                "label": "System Message",
+                "name": "system_message",
+                "editable": true,
+                "type": "textarea",
+                "default": "A chat between a human and an assistant."
+            },
+            {
+                "label": "Stop On",
+                "name": "stop_on",            
+                "editable": true,
+                "type": "multistring",
+                "default": ["</s>"]
+            }
+        ]
+    }            
+}

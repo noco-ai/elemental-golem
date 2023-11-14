@@ -1,0 +1,20 @@
+{
+    "label": "🤗 Zero Shot Image Classification",
+    "description": "Handler for loading any model that is compatible with HuggingFace Zero Short Image Classification pipeline.",
+    "unique_key": "hf_zeroshot_image_class",
+    "script": "zero-shot-image-class.py",
+    "skills": [
+        {
+            "name": "openai/clip-vit-large-patch14",
+            "label": "Clip ViT Large Patch14",
+            "routing_key": "clip_vit_large_patch14",
+            "use": ["zero_shot_image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 3100 },
+            "model": [{
+                "name": "openai/clip-vit-large-patch14",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

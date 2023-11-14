@@ -1,0 +1,44 @@
+{
+    "label": "🤗 Zero Shot Object Detection",
+    "description": "Handler for loading any model that is compatible with HuggingFace Zero Short Object Detection pipeline.",
+    "unique_key": "hf_zeroshot_object_detection",
+    "script": "zero-shot-object-detection.py",
+    "skills": [
+        {
+            "name": "google/owlvit-base-patch32",
+            "label": "Owlvit Base Patch32",
+            "routing_key": "owlvit_base_patch32",
+            "use": ["zero_shot_object_detection"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2100 },
+            "model": [{
+                "name": "google/owlvit-base-patch32",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "google/owlvit-base-patch16",
+            "label": "Owlvit Base Patch16",
+            "routing_key": "owlvit_base_patch16",
+            "use": ["zero_shot_object_detection"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2600 },
+            "model": [{
+                "name": "google/owlvit-base-patch16",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "google/owlvit-large-patch14",
+            "label": "Owlvit Large Patch14",
+            "routing_key": "owlvit_large_patch14",
+            "use": ["zero_shot_object_detection"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 5600 },
+            "model": [{
+                "name": "google/owlvit-large-patch14",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

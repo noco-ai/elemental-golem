@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "properties": {
+        "prompt": {
+            "type": "string"
+        },
+        "progress": {
+            "type": "boolean",
+            "default": false
+        },
+        "voice": {
+            "type": "string"
+        }
+    },
+    "required": ["prompt"]
+}

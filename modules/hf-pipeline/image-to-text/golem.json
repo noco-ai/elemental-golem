@@ -1,0 +1,56 @@
+{
+    "label": "🤗 Image to Text",
+    "description": "Handler for loading any model that is compatible with HuggingFace Image to Text pipeline.",
+    "unique_key": "hf_image_to_text",
+    "script": "image-to-text.py",    
+    "skills": [
+        {
+            "name": "nlpconnect/vit-gpt2-image-captioning",     
+            "use": ["image_captioning"],  
+            "label": "ViT GPT2 Image Captioning",
+            "routing_key": "vit_gpt2_image_captioning",
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2400 },
+            "model": [{
+                "name": "nlpconnect/vit-gpt2-image-captioning",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "ydshieh/vit-gpt2-coco-en",     
+            "use": ["image_captioning"],  
+            "label": "ViT GPT2 CoCo En",
+            "routing_key": "vit_gpt2_coco_en",
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2400 },
+            "model": [{
+                "name": "ydshieh/vit-gpt2-coco-en",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "Salesforce/blip-image-captioning-base",     
+            "use": ["image_captioning"],        
+            "label": "Blip Image Captioning Base",
+            "routing_key": "blip_image_captioning_base",
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2500 },
+            "model": [{
+                "name": "Salesforce/blip-image-captioning-base",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "Salesforce/blip-image-captioning-large",     
+            "use": ["image_captioning"],      
+            "label": "Blip Image Captioning Large",
+            "routing_key": "blip_image_captioning_large",  
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 3300 },
+            "model": [{
+                "name": "Salesforce/blip-image-captioning-large",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

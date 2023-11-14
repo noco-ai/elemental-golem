@@ -1,0 +1,74 @@
+{
+    "label": "LLaVA 1.5",
+    "description": "Handler for loading LLaVA 1.5 visual LLM models.",
+    "script": "golem-generator.py",
+    "unique_key": "llava_15",
+    "repository": [
+        {
+            "url": "https://github.com/haotian-liu/LLaVA",
+            "folder": "haotian-liu/llava"           
+        }
+    ],
+    "skills": [
+        {
+            "label": "LLaVA 7b v1.5",
+            "shortcut": "👀",
+            "moe_function": [
+                "This function takes an image as input and provides a detailed description of it.",
+                "This function provides a description of an image."
+            ],
+            "routing_key": "llava_7b_v1_5",
+            "use": ["visual_language_model"],
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 16000 },
+            "model": [
+                {
+                    "name": "liuhaotian/llava-v1.5-mlp2x-336px-pretrain-vicuna-7b-v1.5",
+                    "provider": "huggingface"
+                },
+                {
+                    "name": "liuhaotian/llava-v1.5-7b",
+                    "provider": "huggingface"
+                }
+            ],
+            "configuration": {
+                "max_seq_len": 4096,
+                "user_role": "USER:",
+                "ai_role": "ASSISTANT:",
+                "stop_on": ["</s>", "<s>"],
+                "system_message": "ASSISTANT: A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}\n"
+            }
+        },
+        {
+            "label": "LLaVA 13b v1.5",
+            "shortcut": "👀",
+            "moe_function": [
+                "This function takes an image as input and provides a detailed description of it.",
+                "This function provides a description of an image."
+            ],
+            "routing_key": "llava_13b_v1_5",
+            "use": ["visual_language_model"],
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 26000 },
+            "model": [
+                {
+                    "name": "liuhaotian/llava-v1.5-mlp2x-336px-pretrain-vicuna-13b-v1.5",
+                    "provider": "huggingface"
+                },
+                {
+                    "name": "liuhaotian/llava-v1.5-13b",
+                    "provider": "huggingface"
+                }                
+            ],
+            "configuration": {
+                "max_seq_len": 4096,
+                "user_role": "USER:",
+                "ai_role": "ASSISTANT:",
+                "stop_on": ["</s>", "<s>"],
+                "system_message": "ASSISTANT: A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\n",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}\n"
+            }
+        }
+    ]
+}

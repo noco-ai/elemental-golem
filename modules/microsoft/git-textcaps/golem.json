@@ -1,0 +1,32 @@
+{
+    "label": "GIT Text Captions",
+    "description": "Handler for loading Microsoft GIT text caption models.",
+    "unique_key": "git_textcaps",    
+    "script": "git-textcaps.py",
+    "skills": [
+        {
+            "name": "microsoft/git-base-textcaps",
+            "label": "GiT Base Textcaps",
+            "routing_key": "git_base_textcaps",
+            "use": ["image_captioning"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2200 },
+            "model": [{
+                "name": "microsoft/git-base-textcaps",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "microsoft/git-large-textcaps",
+            "label": "GiT Large Textcaps",
+            "routing_key": "git_large_textcaps",
+            "use": ["image_captioning"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 3000 },
+            "model": [{
+                "name": "microsoft/git-large-textcaps",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

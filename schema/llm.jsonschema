@@ -1,0 +1,30 @@
+{
+    "type": "object",
+    "properties": {
+        "max_new_tokens": { "type": "number", "default": 512 },
+        "top_p": { "type": "number", "default": 0.9 },
+        "top_k": { "type": "number", "default": 0.9 },
+        "temperature": { "type": "number", "default": 0.9 },
+        "seed": { "type": "number", "default": -1 },
+        "stream": { "type": "boolean", "default": true },
+        "debug": { "type": "boolean" },
+        "stop_key": { "type": "string" },
+        "lora": { "type": "string" },
+        "ai_role": { "type": "string" },
+        "user_role": { "type": "string" },
+        "start_response": { "type": "string"},
+        "raw": { "type": "string"},
+        "messages": { 
+            "type": "array",
+            "items": { 
+                "type": "object",
+                "properties": {
+                    "role": { "type": "string" },
+                    "content": { "type": "string"}
+                },
+                "required": ["role", "content"]
+            }
+        }
+    },
+    "required": ["messages"]
+}

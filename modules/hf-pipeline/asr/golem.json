@@ -1,0 +1,128 @@
+{
+    "label": "🤗 Automatic Speech Recognition",
+    "description": "Handler for loading any ASR model that is compatible with HuggingFace ASR pipeline.",
+    "script": "asr.py",
+    "unique_key": "hf_asr",
+    "skills": [
+        {
+            "name": "openai/whisper-tiny",
+            "label": "Whisper Tiny",
+            "routing_key": "whisper_tiny",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1700 },
+            "model": [{
+                "name": "openai/whisper-tiny",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-tiny.en",
+            "label": "Whisper Tiny En",
+            "routing_key": "whisper_tiny_en",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1700 },
+            "model": [{
+                "name": "openai/whisper-tiny.en",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-base",
+            "label": "Whisper Base",
+            "routing_key": "whisper_base",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1850 },
+            "model": [{
+                "name": "openai/whisper-base",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-base.en",
+            "label": "Whisper Base En",
+            "routing_key": "whisper_base_en",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1850 },
+            "model": [{
+                "name": "openai/whisper-base.en",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-small",
+            "label": "Whisper Small",
+            "routing_key": "whisper_small",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2700 },
+            "model": [{
+                "name": "openai/whisper-small",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-small.en",
+            "label": "Whisper Small En",
+            "routing_key": "whisper_small_en",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2700 },
+            "model": [{
+                "name": "openai/whisper-small.en",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-medium",
+            "label": "Whisper Medium",
+            "routing_key": "whisper_medium",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 4800 },
+            "model": [{
+                "name": "openai/whisper-medium",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-medium.en",
+            "label": "Whisper Medium En",
+            "routing_key": "whisper_medium_en",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 4800 },
+            "model": [{
+                "name": "openai/whisper-medium.en",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "openai/whisper-large-v2",
+            "label": "Whisper Large v2",
+            "routing_key": "whisper_large_v2",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 8100 },
+            "model": [{
+                "name": "openai/whisper-large-v2",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "microsoft/speecht5_asr",
+            "label": "Microsoft Speech T5",
+            "routing_key": "speecht5_asr",
+            "use": ["automatic_speech_recognition"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2300 },
+            "model": [{
+                "name": "microsoft/speecht5_asr",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

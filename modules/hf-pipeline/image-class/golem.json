@@ -1,0 +1,80 @@
+{
+    "label": "🤗 Image Classification",
+    "description": "Handler for loading any model that is compatible with HuggingFace Image Classification pipeline.",
+    "script": "image-class.py",
+    "unique_key": "hf_image_class",
+    "skills": [
+        {
+            "name": "microsoft/resnet-50",
+            "label": "Resnet 50",
+            "routing_key": "resnet_50",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1800 },
+            "model": [{
+                "name": "microsoft/resnet-50",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "microsoft/resnet-18",
+            "label": "Resnet 18",
+            "routing_key": "resnet_18",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1500 },
+            "model": [{
+                "name": "microsoft/resnet-18",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "google/vit-base-patch16-224",
+            "label": "Vit Base Patch16 224",
+            "routing_key": "vit_base_patch16_224",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2000 },
+            "model": [{
+                "name": "google/vit-base-patch16-224",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "google/efficientnet-b0",
+            "label": "Efficientnet B0",
+            "routing_key": "efficientnet_b0",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1800 },
+            "model": [{
+                "name": "google/efficientnet-b0",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "google/efficientnet-b7",
+            "label": "Efficientnet B7",
+            "routing_key": "efficientnet_b7",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2000 },
+            "model": [{
+                "name": "google/efficientnet-b7",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "microsoft/beit-base-patch16-224-pt22k-ft22k",
+            "label": "Beit Base Patch16",
+            "routing_key": "beit_base_patch16",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 1800 },
+            "model": [{
+                "name": "microsoft/beit-base-patch16-224-pt22k-ft22k",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

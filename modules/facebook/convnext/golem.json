@@ -1,0 +1,32 @@
+{
+    "label": "Facebook Convnext",
+    "description": "Handler for Facebook's Convnext ML models for image classification.",
+    "unique_key": "facebook_convnext",
+    "script": "convnext.py",
+    "skills": [
+        {
+            "name": "facebook/convnext-large-224",
+            "label": "Facebook Convnext Large 224",
+            "routing_key": "facebook_convnext_large_224",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2300 },
+            "model": [{
+                "name": "facebook/convnext-large-224",
+                "provider": "huggingface"
+            }]
+        },
+        {
+            "name": "facebook/convnext-base-224",
+            "label": "Facebook Convnext Base 224",
+            "routing_key": "facebook_convnext_base_224",
+            "use": ["image_classification"],
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2000 },
+            "model": [{
+                "name": "facebook/convnext-base-224",
+                "provider": "huggingface"
+            }]
+        }
+    ]
+}

@@ -1,0 +1,74 @@
+{
+    "label": "Open AI Chat",
+    "description": "Handler for running OpenAI models using their API.",
+    "unique_key": "openai_chat",
+    "script": "chat-api.py",
+    "skills": [
+        {
+            "name": "openai/gpt-3.5-turbo",
+            "label": "OpenAI GPT 3.5",
+            "routing_key": "openai_gpt_35",
+            "use": ["reasoning_agent"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "gpt-3.5-turbo",
+                "max_seq_len": 4096,
+                "stop_on": []
+            },
+            "shortcut": "⚡"
+        },
+        {
+            "name": "openai/gpt-4",
+            "label": "OpenAI GPT 4",
+            "routing_key": "openai_gpt_4",
+            "use": ["reasoning_agent"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "gpt-4",
+                "max_seq_len": 8192,
+                "stop_on": []
+            },
+            "shortcut": "✨"
+        }
+    ],
+    "configuration": {
+        "vault_path": "golem/openai",
+        "options": [
+            {
+                "name": "token",
+                "label": "API Token",
+                "editable": true,
+                "type": "secret",
+                "default": ""
+            },
+            {
+                "name": "max_seq_len",
+                "label": "Max Context Length",
+                "type": "slider",
+                "min": 512,
+                "max": 16384,
+                "default": 4096
+            },
+            {
+                "name": "frequency_penalty",
+                "label": "Frequency Penalty",
+                "type": "slider",
+                "min": -2,
+                "max": 2,
+                "step": 0.01,
+                "default": 0
+            },
+            {
+                "name": "presence_penalty",
+                "label": "Presence Penalty",
+                "type": "slider",
+                "min": -2,
+                "max": 2,
+                "step": 0.01,
+                "default": 0
+            }            
+        ]
+    }
+}
