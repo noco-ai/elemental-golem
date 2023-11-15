@@ -157,14 +157,16 @@ if __name__ == "__main__":
     parser.add_argument('--vault-host', required=True, help='Vault server host address')
     parser.add_argument('--vault-token-file', help='Path to the Vault token file', default='./vault-token')
     parser.add_argument('--vault-root', help='Root path in the Vault server', default='spellbook')
+    parser.add_argument('--amqp-ip', help='Overrides what is stored in Vault for the amqp ip.')
     parser.add_argument('--shared-models', required=False, help='Show be set to true is the data/ folder is shared between golem instances or in a docker container.', default=False, type=bool)
     args = parser.parse_args()
 
     vault_client, vault_data = connect_to_vault(args.vault_host, args.vault_token_file, args.vault_root)        
 
     # connect to amqp
+    amqp_ip = args.amqp_ip if args.amqp_ip != None else vault_data['host']
     amqp_params = {
-        'amqp_ip': vault_data['host'],
+        'amqp_ip': amqp_ip,
         'amqp_user': vault_data['username'],
         'amqp_password': vault_data['password'],
         'amqp_vhost': vault_data['vhost']

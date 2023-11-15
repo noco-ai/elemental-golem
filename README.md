@@ -45,6 +45,7 @@ Elemental Golem provides several CLI commands for controlling the software. Belo
 - `--vault-token-file`: The path to the file containing the Vault token. Defaults to './vault-token' if not specified.
 - `--vault-root`: The root path in the Vault server. Defaults to 'arcane-bridge' if not specified.
 - `--shared-models`: If set to true all downloads for HuggingFace will be do to the data/cache/ folder. This is useful for shared drives and docker.
+- `--amqp-ip`: Overrides the IP stored in Vault for connecting to AMQP server. Useful if running instances of Elemental Golem on additional servers when primary node is running stack using Docker compose.
 
 ### **Commands to Control the Server over AMQP**:
 
