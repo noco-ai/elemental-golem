@@ -3,7 +3,11 @@
     "properties": {
         "max_new_tokens": { "type": "number", "default": 512 },
         "top_p": { "type": "number", "default": 0.9 },
-        "top_k": { "type": "number", "default": 0.9 },
+        "top_k": { "type": "number", "default": 50 },
+        "min_p": { "type": "number", "default": 0.05 },
+        "mirostat": { "type": "number", "default": 0 },
+        "mirostat_eta": { "type": "number", "default": 0.1 },
+        "mirostat_tau": { "type": "number", "default": 5 },
         "temperature": { "type": "number", "default": 0.9 },
         "seed": { "type": "number", "default": -1 },
         "stream": { "type": "boolean", "default": true },

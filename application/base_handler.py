@@ -26,14 +26,18 @@ class BaseHandler:
     def copy_queue_headers(self, incoming_headers, override_command = None):
         # copy amqp headers
         outgoing_headers = {}
+        stream_override = None
         for incoming_header in incoming_headers:
             if incoming_header in ["x-delay", "return_exchange", "return_routing_key"]:
                 continue
+            if incoming_header == "stream_to_override":
+                stream_override = incoming_headers[incoming_header]
+
             outgoing_headers[incoming_header] = incoming_headers[incoming_header]
 
-        outgoing_headers["command"] = override_command if override_command is not None else "prompt_fragment"
-        return BasicProperties(headers=outgoing_headers)    
-
+        stream_to = "prompt_fragment" if stream_override == None else stream_override
+        outgoing_headers["command"] = override_command if override_command is not None else stream_to
+        return BasicProperties(headers=outgoing_headers)
 
     def load_schema_file(self, schema_file):
         # Check if schema is in cache

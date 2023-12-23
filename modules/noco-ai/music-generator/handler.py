@@ -28,7 +28,7 @@ class MusicGen(BaseHandler):
         # prep headers for sending progress data
         if send_progress:
             progress_headers = copy.deepcopy(model["amqp_headers"])
-            outgoing_properties = self.copy_queue_headers(progress_headers, "update_chat_progress")
+            outgoing_properties = self.copy_queue_headers(progress_headers, "update_progress")
             amqp_config = {
                 "headers": progress_headers,
                 "outgoing_properties": outgoing_properties,

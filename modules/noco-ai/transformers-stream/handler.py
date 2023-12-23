@@ -42,7 +42,8 @@ class TransformersGenerator(LlmHandler):
         input_token_count = inputs["input_ids"].shape[1]
         
         # set max new tokens and other params
-        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key = self.load_config_settings(input_token_count, request)
+        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key, \
+                    min_p, mirostat, mirostat_eta, mirostat_tau = self.load_config_settings(input_token_count, request)
         if debug:
             print('\033[94m')
             print(request)
@@ -55,7 +56,7 @@ class TransformersGenerator(LlmHandler):
             do_sample=True,
             do_stream=True,
             top_p=top_p,
-            top_k=int(top_k * 100),
+            top_k=top_k,
             eos_token_id=tokenizer.eos_token_id,
             temperature=temperature,
         )

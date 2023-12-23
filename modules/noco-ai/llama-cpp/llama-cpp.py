@@ -28,7 +28,7 @@ class GGUFGenerator(LlmHandler):
                outgoing_properties, stops, request, model_data):
         
         # setup stop conditions
-        check_stop_token, stop_conditions = self.build_stop_conditions(stops)
+        check_stop_token, stop_conditions = self.build_stop_conditions(stops, False)
                 
         # get starting time
         begin_time = time.time()        
@@ -36,7 +36,8 @@ class GGUFGenerator(LlmHandler):
         # set max new tokens and other params
         prompt_tokens = model.tokenize(bytes(prompt, 'utf-8'))
         input_token_count = len(prompt_tokens)
-        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key = self.load_config_settings(input_token_count, request)
+        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key, \
+                    min_p, mirostat, mirostat_eta, mirostat_tau = self.load_config_settings(input_token_count, request)
         if debug:
             print('\033[94m')
             print(request)
@@ -48,9 +49,18 @@ class GGUFGenerator(LlmHandler):
         finish_reason = 'stop'                            
         socket_id = incoming_headers["socket_id"] if "socket_id" in incoming_headers else None
         stop_generation_counter = 0
+        model_args = {}
 
-        for model_stream in model(prompt, stream=True, max_tokens=max_new_tokens, 
-            temperature=temperature, stop=stop_conditions, top_k=int(top_k * 100), top_p=top_p):
+        # sampler settings
+        if mirostat != 0:
+            model_args["mirostat_mode"] = mirostat
+            model_args["mirostat_eta"] = mirostat_eta
+            model_args["mirostat_tau"] = mirostat_tau
+        if seed != -1:
+            model_args["seed"] = seed
+
+        for model_stream in model(prompt, stream=True, max_tokens=max_new_tokens, min_p=min_p,
+            temperature=temperature, stop=stop_conditions, top_k=top_k, top_p=top_p, **model_args):
             text = model_stream["choices"][0]["text"]
             
             stop_generation, stop_generation_counter = self.check_stop_generation(stop_generation_counter, 
@@ -90,7 +100,7 @@ class GGUFGenerator(LlmHandler):
     def execute(self, model, request):
         config = self.model_config                    
 
-        # build the prompt
+        # build the prompt        
         prompt = self.build_prompt(request, config, model)
         incoming_headers = model["amqp_headers"]
         outgoing_properties = self.copy_queue_headers(incoming_headers)        
@@ -110,25 +120,26 @@ class GGUFGenerator(LlmHandler):
         
     def load(self, model, model_options, local_path):           
         self.model_config = model["configuration"]      
-        print(model_options)
         
         try:                        
             if not model["model"][0]["files"][model_options["use_precision"]]:
                 return { "error": True }
 
+            lora_name = self.model_config["default_lora"] if "default_lora" in self.model_config else None
             model_file = model["model"][0]["files"][model_options["use_precision"]]
             model_path = f"{local_path}/{model_file}"
             config_threads = model["configuration"].get("num_threads", -1)
             num_threads = None if config_threads == -1 else config_threads
             max_seq_len = model["configuration"].get("max_seq_len", 2048)
-            seed = model["configuration"].get("seed", -1)            
             model_args = {
                 "model_path": model_path, 
                 "n_gpu_layers": 0, 
                 "n_ctx": max_seq_len,
-                "n_threads":num_threads,
-                "seed": seed
+                "n_threads":num_threads
             }
+
+            if lora_name != None:
+                model_args["lora_path"] = f"data/loras/{lora_name}/"
 
             if model_options["device"].startswith("cuda"):
                 model_args["n_gpu_layers"] = model["configuration"].get("model_layers", 0)

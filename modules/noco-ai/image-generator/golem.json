@@ -3,6 +3,7 @@
     "description": "Handler for loading Stable Diffusion v1.5 models.",
     "unique_key": "sd_15",
     "script": "handler.py",
+    "supported_gpu": ["nvidia"],
     "skills": [
         {
             "label":  "Stable Diffusion v1.5",

@@ -1,0 +1,229 @@
+{
+    "label": "ExLlama v2.0",
+    "description": "Handler for loading any model that is compatible GPTQ 4-bit and the EXL2 format.",
+    "unique_key": "exllama_v2",
+    "script": "handler.py",    
+    "multi_gpu_support": true,
+    "multi_gpu_configurable": true,
+    "supported_gpu": ["nvidia"],
+    "skills": [               
+        {
+            "label":  "Llama 2 Chat 7B (ExLlama v2)",
+            "routing_key": "llama2_chat_7b_exllama_v2",            
+            "use": ["language_model"],                    
+            "available_precision": { "cuda": ["4-bit", "5-bit"] },
+            "memory_usage": { "4-bit": 6900, "5-bit": 7800 },
+            "model": [{
+                "name": "turboderp/Llama2-7B-chat-exl2",
+                "provider": "huggingface",
+                "branch": {
+                    "4-bit": "4.0bpw",
+                    "5-bit": "5.0bpw"
+                }
+            }],
+            "configuration": {                
+                "max_seq_len": 4096,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>"],
+                "system_prompt_format": "{user_role} <<SYS>>\n{system_prompt}\n<</SYS>>\n{prompt} {ai_role} {response} ",
+                "system_message": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }
+        },
+        {
+            "label":  "Llama 2 7B (ExLlama v2)",
+            "routing_key": "llama2_7b_exllama_v2",            
+            "use": ["language_model"],                    
+            "special_ability": ["foundational"],
+            "available_precision": { "cuda": ["4-bit", "5-bit"] },
+            "memory_usage": { "4-bit": 6900 },
+            "model": [{
+                "name": "turboderp/Llama2-7B-exl2",
+                "provider": "huggingface",
+                "branch": {
+                    "4-bit": "4.0bpw",
+                    "5-bit": "5.0bpw"
+                }
+            }],
+            "configuration": {                
+                "max_seq_len": 4096,
+                "user_role": "USER:",
+                "ai_role": "ASSISTANT:",
+                "stop_on": ["<stop>", "USER:"],
+                "default_lora": "jondurbin/airoboros-l2-7b-gpt4-1.4.1-peft",
+                "system_message": "A chat between a curious user and an assistant.\n\n",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }
+        },
+        {
+            "label":  "Llama2 13B Chat (ExLlama v2)",
+            "routing_key": "llama_v2_chat_13b",            
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 11100 },
+            "model": [{
+                "name": "TheBloke/Llama-2-13b-Chat-GPTQ",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 4096,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>"],
+                "system_prompt_format": "{user_role} <<SYS>>\n{system_prompt}\n<</SYS>>\n{prompt} {ai_role} {response} ",
+                "system_message": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }
+        },  
+        {
+            "name": "llama/guanaco-33B-GPTQ",    
+            "label":  "Guanaco 33B (ExLlama v2)",
+            "routing_key": "guanaco_33b_exllama",            
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 21500 },
+            "model": [{
+                "name": "TheBloke/guanaco-33B-GPTQ",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 2048,
+                "user_role": "### Human:",
+                "ai_role": "### Assistant:",
+                "stop_on": ["<stop>", "### Human"],
+                "system_message": "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n",
+                "prompt_format": "{user_role} {prompt}\n{ai_role} {response}\n\n"
+            }
+        },
+        {
+            "name": "llama/guanaco-65B-GPTQ",    
+            "label":  "Guanaco 65B (ExLlama v2)",
+            "routing_key": "guanaco_65b_exllama",            
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 42000 },
+            "model": [{
+                "name": "TheBloke/guanaco-65B-GPTQ",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 2048,
+                "user_role": "### Human:",
+                "ai_role": "### Assistant:",
+                "stop_on": ["<stop>", "### Human"],
+                "system_message": "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n",
+                "prompt_format": "{user_role} {prompt}\n{ai_role} {response}\n\n"
+            }
+        },
+        {
+            "label":  "Guanaco 70B (ExLlama v2)",
+            "routing_key": "guanaco_70b_exllama",            
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 42000 },
+            "model": [{
+                "name": "TheBloke/Llama-2-70B-GPTQ",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 4096,
+                "user_role": "### Human:",
+                "ai_role": "### Assistant:",
+                "stop_on": ["<stop>", "### Human"],
+                "system_message": "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n",
+                "prompt_format": "{user_role} {prompt}\n{ai_role} {response}\n\n"
+            }
+        },        
+        {
+            "label":  "Llama2 70B Chat (ExLlama v2)",
+            "routing_key": "llama_v2_chat_70b_exlv2",
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 42000 },
+            "model": [{
+                "name": "turboderp/Llama2-70B-chat-exl2",
+                "provider": "huggingface",
+                "branch": {
+                    "4-bit": "4.0bpw"
+                }
+            }],
+            "configuration": {
+                "max_seq_len": 4096,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>"],
+                "system_prompt_format": "{user_role} <<SYS>>\n{system_prompt}\n<</SYS>>\n{prompt} {ai_role} {response} ",
+                "system_message": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }
+        },
+        {
+            "label":  "Llama2 70B Chat (ExLlama v2)",
+            "routing_key": "llama_v2_chat_70b",
+            "use": ["language_model"],        
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 42000 },
+            "model": [{
+                "name": "TheBloke/Llama-2-70b-Chat-GPTQ",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 4096,
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>"],
+                "system_prompt_format": "{user_role} <<SYS>>\n{system_prompt}\n<</SYS>>\n{prompt} {ai_role} {response} ",
+                "system_message": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }
+        },
+        {
+            "label":  "Llama 2 7B (ExLlama v2)",
+            "routing_key": "llama2_7b_exllama",            
+            "use": ["language_model"],                    
+            "special_ability": ["foundational"],
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 6900 },
+            "model": [{
+                "name": "turboderp/Llama2-7B-exl2",
+                "provider": "huggingface",
+                "branch": {
+                    "4-bit": "4.0bpw",
+                    "5-bit": "5.0bpw"
+                }
+            }],
+            "configuration": {                
+                "max_seq_len": 4096,
+                "user_role": "USER:",
+                "ai_role": "ASSISTANT:",
+                "stop_on": ["<stop>", "USER:"],
+                "default_lora": "jondurbin/airoboros-l2-7b-gpt4-1.4.1-peft",
+                "system_message": "A chat between a curious user and an assistant.\n\n",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
+            }
+        },
+        {
+            "label":  "Llama 2 13B (ExLlama v2)",
+            "routing_key": "llama2_13b_exllama",                     
+            "use": ["language_model"],        
+            "special_ability": ["foundational"],
+            "available_precision": { "cuda": ["4-bit"] },
+            "memory_usage": { "4-bit": 11100 },
+            "model": [{
+                "name": "TheBloke/Llama-2-13B-GPTQ",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "max_seq_len": 4096,
+                "user_role": "### USER:",
+                "ai_role": "### ASSISTANT:",
+                "stop_on": ["<stop>", "### USER:"],
+                "system_prompt_format": "### SYSTEM: {system_prompt}\n\n",
+                "default_lora": "noco-ai/multishot-llama2-13b",
+                "system_message": "You are a AI chatbot, answer all the users questions to the best of your ability.",
+                "prompt_format": "{user_role} {prompt}\n{ai_role} {response}\n"
+            }
+        }                     
+    ]
+}

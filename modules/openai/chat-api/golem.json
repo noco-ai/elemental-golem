@@ -5,7 +5,6 @@
     "script": "chat-api.py",
     "skills": [
         {
-            "name": "openai/gpt-3.5-turbo",
             "label": "OpenAI GPT 3.5",
             "routing_key": "openai_gpt_35",
             "use": ["reasoning_agent"],
@@ -19,7 +18,6 @@
             "shortcut": "⚡"
         },
         {
-            "name": "openai/gpt-4",
             "label": "OpenAI GPT 4",
             "routing_key": "openai_gpt_4",
             "use": ["reasoning_agent"],
@@ -35,7 +33,7 @@
     ],
     "configuration": {
         "vault_path": "golem/openai",
-        "options": [
+        "options": [                        
             {
                 "name": "token",
                 "label": "API Token",

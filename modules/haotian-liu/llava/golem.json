@@ -3,6 +3,7 @@
     "description": "Handler for loading LLaVA 1.5 visual LLM models.",
     "script": "golem-generator.py",
     "unique_key": "llava_15",
+    "supported_gpu": ["nvidia"],
     "repository": [
         {
             "url": "https://github.com/haotian-liu/LLaVA",

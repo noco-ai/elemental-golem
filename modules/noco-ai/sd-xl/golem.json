@@ -1,0 +1,94 @@
+{
+    "label": "Stable Diffusion XL v1.0",
+    "description": "Handler for loading Stable Diffusion XL v1.0 models.",
+    "unique_key": "sd_xl_10",
+    "script": "handler.py",
+    "supported_gpu": ["nvidia"],
+    "skills": [
+        {
+            "label":  "Stable Diffusion XL v1.0",
+            "routing_key": "stable_diffusion_xl_v10",            
+            "use": ["image_generation"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 19000 },
+            "model": [{
+                "name": "stabilityai/stable-diffusion-xl-base-1.0",
+                "provider": "huggingface"
+            },
+            {
+                "name": "stabilityai/stable-diffusion-xl-refiner-1.0",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "is_turbo": false
+            }        
+        },        
+        {
+            "label":  "DreamShaper XL v1.0",
+            "routing_key": "dream_shaper_xl_image_gen",
+            "use": ["image_generation"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 19000 },
+            "model": [{
+                "name": "civitai/dreamshaper_xl/126688.safetensors",
+                "provider": "civitai",
+                "url": "https://civitai.com/api/download/models/126688?type=Model&format=SafeTensor&size=full&fp=fp16"
+            },
+            {
+                "name": "stabilityai/stable-diffusion-xl-refiner-1.0",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "is_turbo": false
+            }              
+        },
+        {
+            "label":  "Juggernaut XL",
+            "routing_key": "juggernaut_xl_image_gen",
+            "use": ["image_generation"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 19000 },
+            "model": [{
+                "name": "civitai/juggernaut_xl/240840.safetensors",
+                "provider": "civitai",
+                "url": "https://civitai.com/api/download/models/240840?type=Model&format=SafeTensor&size=full&fp=fp16"
+            },
+            {
+                "name": "stabilityai/stable-diffusion-xl-refiner-1.0",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "is_turbo": false
+            }         
+        },
+        {
+            "label":  "Stable Diffusion XL Turbo v1.0",
+            "routing_key": "stable_diffusion_xl_trubo_v10",            
+            "use": ["image_generation"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 7800 },
+            "model": [{
+                "name": "stabilityai/sdxl-turbo",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "is_turbo": true
+            }        
+        },
+        {
+            "label":  "SD XL Turbo Unstable",
+            "routing_key": "sd_xl_trubo_unstable",            
+            "use": ["image_generation"],        
+            "available_precision": { "cuda": ["full"] },
+            "memory_usage": { "full": 7800 },
+            "model": [{
+                "name": "civitai/sd_xl_trubo_unstable/247214.safetensors",
+                "provider": "civitai",
+                "url": "https://civitai.com/api/download/models/247214?type=Model&format=SafeTensor&size=full&fp=fp16"
+            }],
+            "configuration": {
+                "is_turbo": true
+            }        
+        }        
+    ]
+}

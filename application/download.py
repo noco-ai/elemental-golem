@@ -106,6 +106,10 @@ def download_model(model, install_skill, shared_models, server_id, channel):
 
     try:        
         if provider == 'huggingface':
+            if os.path.exists(f'data/models/{name}'):
+                logger.info(f"already downloaded model: {name}")
+                return
+            
             os.makedirs(f'data/models/{name}', exist_ok=True)
             use_symlinks = False if shared_models else "auto"
             cache_dir = "data/cache" if shared_models else None
