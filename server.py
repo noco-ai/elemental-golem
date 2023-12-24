@@ -140,6 +140,7 @@ def connect_to_vault(vault_url, vault_token_file, vault_root, max_retries=10, sl
             else:
                 logger.info(f"waiting for token file creation")
         except Exception as e:
+            print(e)
             pass
         
         time.sleep(sleep_time)            
@@ -159,6 +160,7 @@ if __name__ == "__main__":
     parser.add_argument('--vault-root', help='Root path in the Vault server', default='spellbook')
     parser.add_argument('--amqp-ip', help='Overrides what is stored in Vault for the amqp ip.')
     parser.add_argument('--shared-models', required=False, help='Show be set to true is the data/ folder is shared between golem instances or in a docker container.', default=False, type=bool)
+    parser.add_argument('--gpu-type', help='The type of GPU the system has onboard', default='nvidia', choices=['nvidia', 'nogpu'])
     args = parser.parse_args()
 
     vault_client, vault_data = connect_to_vault(args.vault_host, args.vault_token_file, args.vault_root)        
@@ -175,7 +177,7 @@ if __name__ == "__main__":
     server_id = 'golem_' + hashlib.sha256(server_name.encode()).hexdigest()[:10]
 
     # load config files
-    all_skills, all_configs, all_models, all_repos, script_map, loaded_handlers = load_configs('modules', vault_client, args.vault_root, server_id)        
+    all_skills, all_configs, all_models, all_repos, script_map, loaded_handlers = load_configs('modules', vault_client, args.vault_root, server_id, args.gpu_type)        
 
     # load enabled models json tp dict
     enabled_skills_dict = load_enabled_skills(server_id)
@@ -196,6 +198,7 @@ if __name__ == "__main__":
     # create exchange and queue for this server
     create_exchange(amqp_channel, 'golem')
     create_exchange(amqp_channel, 'golem_broadcast', 'fanout')
+    create_exchange(amqp_channel, 'arcane_bridge_broadcast', 'fanout')    
     create_queue(channel=amqp_channel, queue_name=server_id, is_auto_delete=True, dlx="deadletter")
     bind_queue_to_exchange(amqp_channel, server_id, 'golem')
     bind_queue_to_exchange(amqp_channel, server_id, 'golem_broadcast')
@@ -227,7 +230,7 @@ if __name__ == "__main__":
             if command == "system_info":                                
                 installed_models, installed_repos, downloading_models = check_data_directories(all_models, all_repos)
                 # get list of installed models
-                system_info = get_system_info(server_id)
+                system_info = get_system_info(server_id, args.gpu_type)
                 system_info["server_id"] = server_id
                 system_info["server_label"] = server_id.replace("_", "-")
                 system_info["installed_models"] = installed_models        

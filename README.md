@@ -34,6 +34,33 @@ The following information needs to be stored in Vault for Element Golem to start
 
 See https://github.com/noco-ai/spellbook-docker for installing the entire Spell Book stack with Docker Compose.
 
+### Ubuntu Server 22 Install (no GPU)
+
+These step can be taken to install Element Golem on a Ubuntu 22 server with no GPU installed.
+
+```bash
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt install build-essential
+
+curl https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh --output anaconda.sh
+bash anaconda.sh
+conda create -n golem python=3.10.9
+conda activate golem
+
+# clone repo
+mkdir elemental-golem
+cd elemental-golem
+git clone https://github.com/noco-ai/elemental-golem.git .
+pip install -r requirements-nogpu.txt
+python server.py --server-id golemX --vault-host https://vault.example.com --gpu-type=nogpu
+```
+
+### requirements.txt
+
+When installing Elemental Golem on a system with a Nvidia graphics card you will nee to run the apporicate requirements.txt file. Use
+requirements-nogpu.txt if the system has no GPU present.
+
 ### CLI Parameters and Server Commands
 
 Elemental Golem provides several CLI commands for controlling the software. Below is a detailed explanation of them.
@@ -46,6 +73,7 @@ Elemental Golem provides several CLI commands for controlling the software. Belo
 - `--vault-root`: The root path in the Vault server. Defaults to 'arcane-bridge' if not specified.
 - `--shared-models`: If set to true all downloads for HuggingFace will be do to the data/cache/ folder. This is useful for shared drives and docker.
 - `--amqp-ip`: Overrides the IP stored in Vault for connecting to AMQP server. Useful if running instances of Elemental Golem on additional servers when primary node is running stack using Docker compose.
+- `--gpu-type`: The type of GPU running on the worker server. Valid choices are nvidia or nogpu.
 
 ### **Commands to Control the Server over AMQP**:
 

@@ -45,7 +45,7 @@ def load_enabled_skills(server_id: str) -> dict:
 
     return enabled_skills_dict
 
-def load_configs(base_dir, vault_client, vault_root, server_id):
+def load_configs(base_dir, vault_client, vault_root, server_id, gpu_type):
     # Return data
     all_skills = []
     all_configs = {}
@@ -92,6 +92,10 @@ def load_configs(base_dir, vault_client, vault_root, server_id):
                 script_path = os.path.join(dir_path, config["script"])
                 config["script_path"] = script_path
                 all_configs[dir_path] = config
+
+                if "supported_gpu" in config and gpu_type not in config["supported_gpu"]:
+                    logger.info(f"skipping handler {config['label']}, gpu not supported")
+                    continue
 
                 if "repository" in config:
                     for repo in config["repository"]:
@@ -189,7 +193,7 @@ def get_gpu_memory_usage(device_id):
 
     return used_memory, free_memory, total_memory
 
-def get_system_info(server_id):
+def get_system_info(server_id, gpu_type):
     # network info
     hostname = socket.gethostname()
     system_info = {
@@ -220,38 +224,39 @@ def get_system_info(server_id):
         "free": disk_usage.free,
         "percent_used": disk_usage.percent
     }
-
-    # NVIDIA GPU information
-    nvmlInit()
-    device_count = nvmlDeviceGetCount()
+    
     system_info["gpu"] = []
     gpu_names = {}
 
-    for i in range(device_count):
-        handle = nvmlDeviceGetHandleByIndex(i)
-        name = nvmlDeviceGetName(handle)
-        mem_info = nvmlDeviceGetMemoryInfo(handle)
-        utilization = nvmlDeviceGetUtilizationRates(handle)
+    # NVIDIA GPU information
+    if gpu_type == "nvidia":        
+        nvmlInit()
+        device_count = nvmlDeviceGetCount()
+        for i in range(device_count):
+            handle = nvmlDeviceGetHandleByIndex(i)
+            name = nvmlDeviceGetName(handle)
+            mem_info = nvmlDeviceGetMemoryInfo(handle)
+            utilization = nvmlDeviceGetUtilizationRates(handle)
 
-        # rename gpu if we have more than more of the same type
-        if name in gpu_names:
-            gpu_name = f"{name} #{gpu_names[name]}"
-            gpu_names[name] += 1
-        else:
-            gpu_name = name
-            gpu_names[name] = 2
+            # rename gpu if we have more than more of the same type
+            if name in gpu_names:
+                gpu_name = f"{name} #{gpu_names[name]}"
+                gpu_names[name] += 1
+            else:
+                gpu_name = name
+                gpu_names[name] = 2
 
-        system_info["gpu"].append({
-            "device": f"cuda:{i}",
-            "name": gpu_name,
-            "memory_total": mem_info.total,
-            "memory_used": mem_info.used,
-            "memory_free": mem_info.free,
-            "gpu_utilization": utilization.gpu,
-            "memory_utilization": utilization.memory
-        })
+            system_info["gpu"].append({
+                "device": f"cuda:{i}",
+                "name": gpu_name,
+                "memory_total": mem_info.total,
+                "memory_used": mem_info.used,
+                "memory_free": mem_info.free,
+                "gpu_utilization": utilization.gpu,
+                "memory_utilization": utilization.memory
+            })
 
-    nvmlShutdown()
+        nvmlShutdown()
 
     # rename multiple gpus
     for gpu in system_info["gpu"]:

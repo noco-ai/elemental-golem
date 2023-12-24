@@ -112,7 +112,8 @@ class LLaVA(LlmHandler):
         input_token_count = input_ids.shape[1]
 
         finish_reason = "stop"
-        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key = self.load_config_settings(input_token_count, request)        
+        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key, \
+                    min_p, mirostat, mirostat_eta, mirostat_tau = self.load_config_settings(input_token_count, request)
         check_stop_token, stop_conditions = self.build_stop_conditions(config["stop_on"])
         stopping_criteria = KeywordsStoppingCriteria(stop_conditions, model["tokenizer"], input_ids)
 

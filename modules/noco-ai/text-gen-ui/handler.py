@@ -1,13 +1,15 @@
 from application.llm_handler import LlmHandler
 from pika import BasicProperties
-import openai
 import logging
-import tiktoken
 import time
+import json
+import requests
+import sseclient
+import tiktoken
 
 logger = logging.getLogger(__name__)
 
-class OpenAIChatApi(LlmHandler):
+class TextGenUiChatApi(LlmHandler):
     def __init__(self):        
         super().__init__()
 
@@ -44,8 +46,9 @@ class OpenAIChatApi(LlmHandler):
         return clipped_messages, input_token_count
     
     def execute(self, model, request):
-        
-        self.token_counter = tiktoken.encoding_for_model(model["model_name"])    
+        # this is not the correct tokenizer but will give a rough guess, will need to fix this at some point...                    
+        model_name = "gpt-3.5-turbo"
+        self.token_counter = tiktoken.encoding_for_model(model_name)    
         clipped_messages, input_token_count = self.clip_messages(request, self.model_config)
         if clipped_messages == None:
             return None
@@ -60,67 +63,67 @@ class OpenAIChatApi(LlmHandler):
         # make API request to OpenAI
         begin_time = time.time()        
         config = self.model_config
+        check_stop_token, stop_conditions = self.build_stop_conditions(config["stop_on"])                
+        url = self.model_config["api_path"] #"http://10.10.70.36:5000/v1/chat/completions"
 
-        check_stop_token, stop_conditions = self.build_stop_conditions(config["stop_on"])        
-        response = openai.ChatCompletion.create(
-          model=model["model_name"],
-          stream=stream_output,
-          messages=clipped_messages,
-          temperature=temperature,
-          max_tokens=max_new_tokens,
-          stop=stop_conditions,
-          presence_penalty=config.get("presence_penalty", 0),
-          frequency_penalty=config.get("frequency_penalty", 0),
-          top_p=top_p
-        )
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        data = {
+            "messages": request.get("messages", []),
+            "max_tokens": max_new_tokens,
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "min_p": min_p,
+            "seed": seed,
+            "stream": True,
+        }
+
+        stream_response = requests.post(url, headers=headers, json=data, verify=False, stream=True)
+        client = sseclient.SSEClient(stream_response)
 
         channel = model["amqp_channel"]
         incoming_headers = model["amqp_headers"]
 
         # copy amqp headers
+        response_str = ""
+        finish_reason = "stop"                
+        new_tokens = 0
         outgoing_headers = {}
         for incoming_header in incoming_headers:
             if incoming_header in ["x-delay", "return_exchange", "return_routing_key"]:
                 continue
             outgoing_headers[incoming_header] = incoming_headers[incoming_header]        
 
-        response_str = ""
-        finish_reason = "stop"                
-        new_tokens = 0
-        if stream_output:
-            socket_id = incoming_headers["socket_id"] if "socket_id" in incoming_headers else None
-            outgoing_headers["command"] = "prompt_fragment" if "stream_to_override" not in incoming_headers else incoming_headers["stream_to_override"]
-            outgoing_properties = BasicProperties(headers=outgoing_headers)
-            stop_generation_counter = 0
+        socket_id = incoming_headers["socket_id"] if "socket_id" in incoming_headers else None
+        outgoing_headers["command"] = "prompt_fragment" if "stream_to_override" not in incoming_headers else incoming_headers["stream_to_override"]
+        outgoing_properties = BasicProperties(headers=outgoing_headers)
+        stop_generation_counter = 0
+        
+        for event in client.events():
+            
+            stop_generation, stop_generation_counter = self.check_stop_generation(stop_generation_counter, 
+                                model["stop_generation_event"], model["stop_generation_filter"], socket_id)
+            
+            if stop_generation:
+                finish_reason = "abort"
+                break                
 
-            for chunk in response:                
-                stop_generation, stop_generation_counter = self.check_stop_generation(stop_generation_counter, 
-                                    model["stop_generation_event"], model["stop_generation_filter"], socket_id)
-                
-                if stop_generation:
-                    finish_reason = "abort"
-                    break                
+            payload = json.loads(event.data)
+            chunk = payload['choices'][0]['message']['content']
+            response_str += chunk            
 
-                new_tokens += 1
-                if "content" in chunk['choices'][0]['delta']:                
-                    if len(chunk['choices'][0]['delta']['content']) == 0:
-                        continue
-
-                    if debug:
-                        print('\033[96m' + chunk['choices'][0]['delta']['content'], end="")
-
-                    response_str += chunk['choices'][0]['delta']['content']
-                    channel.basic_publish(
-                        exchange=incoming_headers['return_exchange'], 
-                        routing_key=incoming_headers['return_routing_key'], 
-                        body=chunk['choices'][0]['delta']['content'], properties=outgoing_properties)
-
+            new_tokens += 1            
             if debug:
-                print('\033[0m' + "")
-        else:
-            response_str = response['choices'][0]['message']['content']
-            new_tokens = response['usage']['completion_tokens']
+                print('\033[96m' + chunk, end="")
 
+            channel.basic_publish(
+                exchange=incoming_headers['return_exchange'], 
+                routing_key=incoming_headers['return_routing_key'], 
+                body=chunk, properties=outgoing_properties)
+                            
         end_time = time.time()
         elapsed = end_time - begin_time
         token_rate = 0 if elapsed == 0 else (new_tokens / elapsed)        
@@ -128,8 +131,8 @@ class OpenAIChatApi(LlmHandler):
         resp = self.finish_response(stop_key, response_str, request, stream_output, finish_reason, 
                                         token_rate, new_tokens, input_token_count, model_name, elapsed, debug)        
         return resp
+        
 
     def load(self, model, model_options, local_path):         
         self.model_config = model["configuration"]            
-        openai.api_key = model["secrets"]["token"]
-        return { "model_name": model["configuration"]["model"] }
+        return { "model_name": "" }

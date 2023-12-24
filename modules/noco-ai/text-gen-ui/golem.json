@@ -1,0 +1,32 @@
+{
+    "label": "Text Generation UI",
+    "description": "Handler for running models from Obooa server.",
+    "unique_key": "text_gen_ui",
+    "script": "handler.py",
+    "skills": [        
+        {
+            "label": "OpenAI Compatible Endpoint",
+            "routing_key": "custom_llm_endpoint",
+            "use": ["language_model"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "none",
+                "max_seq_len": 2048,
+                "stop_on": []
+            }
+        }
+    ],
+    "configuration": {
+        "vault_path": "golem/openai",
+        "options": [            
+            {
+                "name": "api_path",
+                "label": "API Path",
+                "editable": true,
+                "type": "string",
+                "default": "http://127.0.0.1:5000/v1/chat/completions"
+            }        
+        ]
+    }
+}

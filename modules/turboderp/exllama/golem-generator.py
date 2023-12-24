@@ -50,7 +50,10 @@ class GolemExLlamaGenerator(LlmHandler):
         stop_generation_counter = 0
         ids = generator.tokenizer.encode(prompt)
         input_token_count = len(ids[0])
-        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key = self.load_config_settings(input_token_count, request)
+
+        max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key, \
+                    min_p, mirostat, mirostat_eta, mirostat_tau = self.load_config_settings(input_token_count, request)        
+        
         if debug:
             print('\033[94m')
             print(request)
@@ -150,7 +153,7 @@ class GolemExLlamaGenerator(LlmHandler):
                 if not os.path.exists(lora_dir):
                     logger.info("downloading lora {lora_name} from huggingface")
                     snapshot_download(repo_id=lora_name, local_dir=lora_dir, cache_dir='data/cache', local_dir_use_symlinks=False)
-
+ 
                 lora_path = os.path.join(f"data/loras/", lora_name, "adapter_model.bin")                
                 lora_config_path = os.path.join(f"data/loras/{lora_name}", "adapter_config.json")
                 

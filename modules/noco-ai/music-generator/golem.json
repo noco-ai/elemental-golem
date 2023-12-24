@@ -23,7 +23,7 @@
             "routing_key": "musicgen_medium",            
             "use": ["music_generation"],        
             "available_precision": { "cpu": ["full"], "cuda": ["full"] },
-            "memory_usage": { "full": 0 },
+            "memory_usage": { "full": 8500 },
             "model": [{
                 "name": "facebook/musicgen-medium",
                 "provider": "huggingface"
@@ -37,7 +37,7 @@
             "routing_key": "musicgen_large",            
             "use": ["music_generation"],        
             "available_precision": { "cpu": ["full"], "cuda": ["full"] },
-            "memory_usage": { "full": 0 },
+            "memory_usage": { "full": 13500 },
             "model": [{
                 "name": "facebook/musicgen-large",
                 "provider": "huggingface"

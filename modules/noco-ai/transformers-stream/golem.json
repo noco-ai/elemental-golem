@@ -5,6 +5,7 @@
     "script": "handler.py",    
     "multi_gpu_support": true,
     "multi_gpu_configurable": false,
+    "supported_gpu": ["nvidia"],
     "skills": [
         {
             "label":  "CodeLlama 7B Instruct 🤗",

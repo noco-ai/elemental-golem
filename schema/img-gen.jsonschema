@@ -16,6 +16,14 @@
             "type": "integer",
             "default": 50
         },
+        "seed": {
+            "type": "integer",
+            "default": -1
+        },
+        "progress": {
+            "type": "boolean",
+            "default": false
+        },
         "negative_prompt": {
             "type": "string",
             "default": ""

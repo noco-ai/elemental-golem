@@ -18,8 +18,12 @@ class LlmHandler(BaseHandler):
         max_seq_len = config.get("max_seq_len", 2048)
         max_new_tokens = min(max_new_tokens_config, max_seq_len - num_input_tokens)
         top_p = request.get("top_p", 0.9)
-        top_k = request.get("top_k", 0.9)
+        top_k = request.get("top_k", 50)
         seed = request.get("seed", -1)
+        min_p = request.get("min_p", 0.05)
+        mirostat = request.get("mirostat", 0)
+        mirostat_eta = request.get("mirostat_eta", 0.01)
+        mirostat_tau = request.get("mirostat_tau", 5)
         temperature = request.get("temperature", 1)
         stream_output = True if "stream" in request and request["stream"] == True else False
         debug = "debug" in request
@@ -27,16 +31,18 @@ class LlmHandler(BaseHandler):
 
         logger.info(f"prompt tokens: {num_input_tokens}, max completion tokens: {max_new_tokens}, context length: {max_seq_len}")
         logger.info(f"temperature: {temperature}, top_p: {top_p}, top_k: {top_k}, seed: {seed}, stream output: {stream_output}")
-        return max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key    
+        logger.info(f"min_p: {min_p}, mirostat: {mirostat}, mirostat_eta: {mirostat_eta}, mirostat_tau: {mirostat_tau}")
+        return max_new_tokens, top_p, top_k, seed, temperature, stream_output, debug, stop_key, min_p, mirostat, mirostat_eta, mirostat_tau    
 
-    def build_stop_conditions(self, stops):
+    def build_stop_conditions(self, stops, to_lower = True):
         check_stop_token = False
         stop_conditions = []
         for stop_text in stops:       
             if stop_text == "<stop>":
                 check_stop_token = True
                 continue
-            stop_conditions.append(stop_text.lower())
+            add_condition = stop_text.lower() if to_lower == True else stop_text
+            stop_conditions.append(add_condition)
         
         return check_stop_token, stop_conditions
 
