@@ -30,32 +30,7 @@
                 "system_message": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
                 "prompt_format": "{user_role} {prompt} {ai_role} {response}"
             }
-        },
-        {
-            "label":  "Llama 2 7B (ExLlama v2)",
-            "routing_key": "llama2_7b_exllama_v2",            
-            "use": ["language_model"],                    
-            "special_ability": ["foundational"],
-            "available_precision": { "cuda": ["4-bit", "5-bit"] },
-            "memory_usage": { "4-bit": 6900 },
-            "model": [{
-                "name": "turboderp/Llama2-7B-exl2",
-                "provider": "huggingface",
-                "branch": {
-                    "4-bit": "4.0bpw",
-                    "5-bit": "5.0bpw"
-                }
-            }],
-            "configuration": {                
-                "max_seq_len": 4096,
-                "user_role": "USER:",
-                "ai_role": "ASSISTANT:",
-                "stop_on": ["<stop>", "USER:"],
-                "default_lora": "jondurbin/airoboros-l2-7b-gpt4-1.4.1-peft",
-                "system_message": "A chat between a curious user and an assistant.\n\n",
-                "prompt_format": "{user_role} {prompt} {ai_role} {response}"
-            }
-        },
+        },        
         {
             "label":  "Llama2 13B Chat (ExLlama v2)",
             "routing_key": "llama_v2_chat_13b",            
@@ -179,7 +154,7 @@
             }
         },
         {
-            "label":  "Llama 2 7B (ExLlama v2)",
+            "label":  "Llama 2 7B (ExLlama)",
             "routing_key": "llama2_7b_exllama",            
             "use": ["language_model"],                    
             "special_ability": ["foundational"],
