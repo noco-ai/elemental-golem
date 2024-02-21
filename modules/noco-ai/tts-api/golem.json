@@ -1,0 +1,22 @@
+{
+    "label": "xTTS Text to Speech",
+    "description": "Handler for loading xTTS text to speech models.",
+    "unique_key": "coqui_tts",
+    "script": "handler.py",
+    "skills": [        
+        {
+            "label":  "XTTS v2",
+            "routing_key": "xtts_v2_speech",            
+            "use": ["text_to_speech"],        
+            "available_precision": { "cuda": ["full"], "cpu": ["full"] },
+            "memory_usage": { "full": 2800 },
+            "model": [{
+                "name": "coqui/XTTS-v2",
+                "provider": "huggingface"
+            }],
+            "configuration": {
+                "progress_label": "Generating Speech"
+            }            
+        }
+    ]
+}

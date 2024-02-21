@@ -14,7 +14,10 @@
             "model": [{
                 "name": "runwayml/stable-diffusion-v1-5",
                 "provider": "huggingface"
-            }]            
+            }],
+            "configuration": {
+                "progress_label": "Generating Image"
+            }                        
         },
         {
             "label":  "DreamShaper",
@@ -26,7 +29,10 @@
                 "name": "civitai/dreamshaper/128713.safetensors",
                 "provider": "civitai",
                 "url": "https://civitai.com/api/download/models/128713?type=Model&format=SafeTensor&size=pruned&fp=fp16"
-            }]            
+            }],
+            "configuration": {
+                "progress_label": "Generating Image"
+            }                        
         }
     ]
 }

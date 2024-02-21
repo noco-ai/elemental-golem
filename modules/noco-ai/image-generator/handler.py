@@ -6,6 +6,7 @@ from io import BytesIO
 import logging
 import json
 import copy
+from compel import Compel
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +23,12 @@ class StableDiffusion(BaseHandler):
             return callback_kwargs    
         
         self.current_step = self.current_step + 1
+        label = self.model_configuration["progress_label"] if "progress_label" in self.model_configuration else self.routing_key
         send_body = {
             "total": self.total_steps,
             "current": self.current_step,
-            "label": self.routing_key
+            "label": label,
+            "model": self.routing_key
         }
             
         self.amqp_progress_config["channel"].basic_publish(
@@ -72,24 +75,27 @@ class StableDiffusion(BaseHandler):
                 "channel": model["amqp_channel"]
             }
             self.current_step = 0            
-            self.total_steps = steps
+            self.total_steps = steps * 2
 
-        latent_data = self.get_latents(num_images_per_prompt, height, width, seed, self.model_config["device"], model["model"])
+        latent_data = self.get_latents(num_images_per_prompt, height, width, seed, self.model_options["device"], model["model"])
         logger.info(f"prompt: {prompt}, height: {height}, width: {width}, steps: {steps}, guidance scale: {guidance_scale}, seed: {latent_data['seed']}")
 
-        image = model["model"](prompt, height=height, width=width, num_inference_steps=steps, latents=latent_data["latents"], callback_on_step_end=self.step_callback,
-                            negative_prompt=negative_prompt, guidance_scale=guidance_scale, num_images_per_prompt=num_images_per_prompt).images[0]
+        prompt_embeds = model["compel"](prompt)
+        negative_prompt_embeds = model["compel"](negative_prompt)
+        image = model["model"](prompt_embeds=prompt_embeds, height=height, width=width, num_inference_steps=steps, latents=latent_data["latents"], callback_on_step_end=self.step_callback,
+                            negative_prompt_embeds=negative_prompt_embeds, guidance_scale=guidance_scale, num_images_per_prompt=num_images_per_prompt).images[0]
 
         buffered = BytesIO()
         image.save(buffered, format="PNG") 
 
         # Convert bytes buffer to a base64-encoded string
         img_str = base64.b64encode(buffered.getvalue()).decode()
-        return {"image": img_str, "seed": latent_data["seed"], "guidance_scale": guidance_scale, "seed": seed, "steps": steps }
+        return {"image": img_str, "seed": latent_data["seed"], "guidance_scale": guidance_scale, "steps": steps }
     
     def load(self, model, model_options, local_path):
-        self.model_config = model_options
+        self.model_options = model_options
         self.routing_key = model["routing_key"]
+        self.model_configuration = model["configuration"]
 
         if "civitai" not in local_path: 
             logger.info("loading standard sd model")           
@@ -99,9 +105,11 @@ class StableDiffusion(BaseHandler):
             load_model = StableDiffusionPipeline.from_single_file(local_path, load_safety_checker=False, torch_dtype=torch.float16)
         
         load_model.scheduler = KDPM2DiscreteScheduler.from_config(load_model.scheduler.config)
+        compel = Compel(tokenizer=load_model.tokenizer, text_encoder=load_model.text_encoder)
 
         return {
             "model": load_model,
             "device": model_options["device"],
-            "device_memory": model["memory_usage"][model_options["use_precision"]]
+            "device_memory": model["memory_usage"][model_options["use_precision"]],
+            "compel": compel
         }

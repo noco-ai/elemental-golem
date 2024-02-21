@@ -80,11 +80,12 @@ def worker_thread(amqp_params, stop_event, stop_generation_event, stop_generatio
         logger.warning(f"could not load skill {skill['routing_key']}")
         return
         
-    amqp_connected, connection, channel = connect_to_amqp(**amqp_params)
+    amqp_connected, connection, channel = connect_to_amqp(**amqp_params)    
     if amqp_connected == False:
         return
     
     ## check to make sure mode will work on selected device
+    channel.basic_qos(prefetch_count=1)
     device = device_and_status["device"]
     root_device = device.split(":")[0]
     if root_device == "split":
@@ -123,10 +124,11 @@ def worker_thread(amqp_params, stop_event, stop_generation_event, stop_generatio
 
     if load_error == False:
         try:                        
-            create_queue(channel=channel, queue_name=queue_name, dlx='deadletter', dlx_queue='deadletters', is_auto_delete=True)
+            create_queue(channel=channel, queue_name=queue_name, dlx='deadletter', dlx_queue='deadletters', is_auto_delete=False)
             bind_queue_to_exchange(channel, queue_name, 'golem_skill', skill["routing_key"])
             loaded_skill["secrets"] = skill["secrets"]
             loaded_skill["amqp_channel"] = channel    
+            loaded_skill["amqp_connection"] = connection
         except Exception as e:        
             logger.error("failed to bind to queue", e)    
     
@@ -142,7 +144,7 @@ def worker_thread(amqp_params, stop_event, stop_generation_event, stop_generatio
             channel.basic_reject(delivery_tag=method.delivery_tag, requeue=False)
             return
 
-        if any(key not in properties.headers for key in ["return_exchange", "return_routing_key", "command"]):
+        if not hasattr(properties, 'headers') or properties.headers == None or any(key not in properties.headers for key in ["return_exchange", "return_routing_key", "command"]):
             channel.basic_reject(delivery_tag=method.delivery_tag, requeue=False)
             logger.error('missing required amqp headers')
             return

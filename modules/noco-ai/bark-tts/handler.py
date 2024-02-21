@@ -25,6 +25,9 @@ class BarkHandler(BaseHandler):
         voice_preset = request.get("voice", "v2/en_speaker_1")
         prompt_length = len(prompt)
 
+        if voice_preset == "default": 
+            voice_preset = "v2/en_speaker_1"
+            
         if send_progress:
             progress_headers = copy.deepcopy(model["amqp_headers"])
             outgoing_properties = self.copy_queue_headers(progress_headers, "update_progress")
@@ -33,9 +36,9 @@ class BarkHandler(BaseHandler):
                 "outgoing_properties": outgoing_properties,
                 "channel": model["amqp_channel"]
             }            
-            self.progress_streamer.configure(prompt_length * 25, self.model_config["progress_label"], amqp_config, False)
+            self.progress_streamer.configure(prompt_length * 25, self.model_config["progress_label"], self.routing_key, amqp_config, False)
         else:
-            self.progress_streamer.configure(prompt_length * 25, self.model_config["progress_label"], None, False)
+            self.progress_streamer.configure(prompt_length * 25, self.model_config["progress_label"], self.routing_key, None, False)
 
         # Assuming the model function can take these parameters:        
         logger.info(f"prompt: {prompt}, voice: {voice_preset}, length: {prompt_length}")        
@@ -57,6 +60,7 @@ class BarkHandler(BaseHandler):
     
     def load(self, model, model_options, local_path):
         self.model_config = model["configuration"]      
+        self.routing_key = model["routing_key"]
         processor = AutoProcessor.from_pretrained(local_path)
         load_model = AutoModel.from_pretrained(local_path)
         

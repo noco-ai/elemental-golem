@@ -36,6 +36,9 @@ class BaseHandler:
             outgoing_headers[incoming_header] = incoming_headers[incoming_header]
 
         stream_to = "prompt_fragment" if stream_override == None else stream_override
+        if override_command != None:
+            outgoing_headers["original_command"] = incoming_headers["command"]
+
         outgoing_headers["command"] = override_command if override_command is not None else stream_to
         return BasicProperties(headers=outgoing_headers)
 

@@ -59,6 +59,12 @@ class GGUFGenerator(LlmHandler):
         if seed != -1:
             model_args["seed"] = seed
 
+        if "start_response" in request and stream_output:
+            channel.basic_publish(
+                    exchange=incoming_headers['return_exchange'], 
+                    routing_key=incoming_headers['return_routing_key'], 
+                    body=request["start_response"], properties=outgoing_properties)
+
         for model_stream in model(prompt, stream=True, max_tokens=max_new_tokens, min_p=min_p,
             temperature=temperature, stop=stop_conditions, top_k=top_k, top_p=top_p, **model_args):
             text = model_stream["choices"][0]["text"]
@@ -75,11 +81,11 @@ class GGUFGenerator(LlmHandler):
                 finish_reason = 'length'
                 break
             
-            # send chunk to front end
-            if stream_output:
-                if debug:
-                    print('\033[96m' + text, end="")
+            if debug:
+                print('\033[96m' + text, end="")
 
+            # send chunk to front end
+            if stream_output:                
                 channel.basic_publish(
                     exchange=incoming_headers['return_exchange'], 
                     routing_key=incoming_headers['return_routing_key'], 
@@ -87,7 +93,7 @@ class GGUFGenerator(LlmHandler):
             else:
                 response += text
 
-        if debug and stream_output:
+        if debug:
             print('\033[0m' + "")
 
         end_time = time.time()

@@ -20,8 +20,9 @@
                 "provider": "huggingface"
             }],
             "configuration": {
-                "is_turbo": false
-            }        
+                "is_turbo": false,
+                "progress_label": "Generating Image"                
+            }
         },        
         {
             "label":  "DreamShaper XL v1.0",
@@ -39,7 +40,8 @@
                 "provider": "huggingface"
             }],
             "configuration": {
-                "is_turbo": false
+                "is_turbo": false,
+                "progress_label": "Generating Image"
             }              
         },
         {
@@ -58,7 +60,8 @@
                 "provider": "huggingface"
             }],
             "configuration": {
-                "is_turbo": false
+                "is_turbo": false,
+                "progress_label": "Generating Image"
             }         
         },
         {
@@ -72,7 +75,8 @@
                 "provider": "huggingface"
             }],
             "configuration": {
-                "is_turbo": true
+                "is_turbo": true,
+                "progress_label": "Generating Image"
             }        
         },
         {
@@ -87,7 +91,8 @@
                 "url": "https://civitai.com/api/download/models/247214?type=Model&format=SafeTensor&size=full&fp=fp16"
             }],
             "configuration": {
-                "is_turbo": true
+                "is_turbo": true,
+                "progress_label": "Generating Image"
             }        
         }        
     ]

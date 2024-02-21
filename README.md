@@ -47,6 +47,8 @@ curl https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh --outpu
 bash anaconda.sh
 conda create -n golem python=3.10.9
 conda activate golem
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
 
 # clone repo
 mkdir elemental-golem
