@@ -12,8 +12,7 @@ class OpenAIImageGeneration(BaseHandler):
 
     def validate(self, request):        
         is_valid, errors = self.validate_request(request, 'img-gen')
-        return is_valid, errors
-    
+        return is_valid, errors    
     
     def update_config(self, config_data):
         current_config = self.model_config
@@ -25,10 +24,15 @@ class OpenAIImageGeneration(BaseHandler):
         height = request.get("height", 1024)
         width = request.get("width", 1024)
 
+        if height == 512 or width == 512:
+            size = "512x512"
+        else:
+            size = "1024x1024"
+
         response = model["client"].images.generate(
             model="dall-e-3",
             prompt=prompt,
-            size=f"{height}x{width}",
+            size=size,
             quality="standard",
             response_format="b64_json",
             n=1,

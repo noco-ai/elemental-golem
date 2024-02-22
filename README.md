@@ -1,7 +1,12 @@
 # Elemental Golem
 
-Elemental Golem is a project that defines and serves AI models using a modular system with a `golem.json` configuration file and a handler that implements the call and response from the model utilizing AMQP as the message broker. It is the backend used by Arcane Bridge and Spell Book for interating with AI models based off Pytorch and similar libraries. It
-currently focuses soley on inference tasks.
+Elemental Golem is a project that defines and serves AI models using a modular system with a `golem.json` configuration file and a handler that implements the call and response from the model utilizing AMQP as the message broker. It is the backend used by Arcane Bridge and Spell Book for interating with AI models based off Pytorch and similar libraries. It currently focuses soley on inference tasks.
+
+
+## Stack Documentation
+
+- https://github.com/noco-ai/spellbook-docker/wiki
+- The wiki for the docker project contains comprehensive documentation for the UI that uses Elemental Golem to serve AI models.
 
 ## Stack Architecture
 
