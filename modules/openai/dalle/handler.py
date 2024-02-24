@@ -29,6 +29,7 @@ class OpenAIImageGeneration(BaseHandler):
         else:
             size = "1024x1024"
 
+        print("generating image")
         response = model["client"].images.generate(
             model="dall-e-3",
             prompt=prompt,

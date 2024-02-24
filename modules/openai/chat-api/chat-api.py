@@ -61,6 +61,7 @@ class OpenAIChatApi(LlmHandler):
         begin_time = time.time()        
         config = self.model_config
 
+        print(f'sending request to openai api')
         check_stop_token, stop_conditions = self.build_stop_conditions(config["stop_on"])        
         response = model["client"].chat.completions.create(
             model=model["model_name"],
