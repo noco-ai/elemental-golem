@@ -115,6 +115,8 @@ class LlmHandler(BaseHandler):
         request_system_message = None
         max_new_tokens = request.get("max_new_tokens", 1024)
         max_seq_length = config["max_seq_len"]        
+        print(max_seq_length)
+        print(max_new_tokens)
         max_input_tokens = max(max_seq_length - max_new_tokens, 0)        
 
         if max_input_tokens == 0:

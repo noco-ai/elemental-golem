@@ -118,13 +118,14 @@ class OpenAIChatApi(LlmHandler):
             if debug:
                 print('\033[0m' + "")
         else:
-            response_str = response['choices'][0]['message']['content']
-            new_tokens = response['usage']['completion_tokens']
+            response_str = response.choices[0].message.content
+            new_tokens = response.usage.completion_tokens
 
         end_time = time.time()
         elapsed = end_time - begin_time
         token_rate = 0 if elapsed == 0 else (new_tokens / elapsed)        
         model_name = incoming_headers["model_name"] if "model_name" in incoming_headers else "not_provided"
+        request["start_response"] = ""
         resp = self.finish_response(stop_key, response_str, request, stream_output, finish_reason, 
                                         token_rate, new_tokens, input_token_count, model_name, elapsed, debug)        
         return resp
