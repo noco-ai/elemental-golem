@@ -76,16 +76,21 @@ class XTTSHandler(BaseHandler):
     def load(self, model, model_options, local_path):
         self.model_config = model["configuration"]      
 
-        config = XttsConfig()
-        config.load_json(f"{local_path}/config.json")
-        loaded_model = Xtts.init_from_config(config)
-        loaded_model.load_checkpoint(config, checkpoint_dir=local_path, eval=True)
-        if model_options["device"] != "cpu":
-            loaded_model.cuda(model_options["device"])
+        try:                        
+            config = XttsConfig()
+            config.load_json(f"{local_path}/config.json")
+            loaded_model = Xtts.init_from_config(config)
+            loaded_model.load_checkpoint(config, checkpoint_dir=local_path, eval=True)
+            if model_options["device"] != "cpu":
+                loaded_model.cuda(model_options["device"])
 
-        logger.setLevel(logging.INFO)
-        return {
-            "loaded_model": loaded_model,
-            "config": config,
-            "default_wav": f"{local_path}/samples/en_sample.wav"
-        }
+            logger.setLevel(logging.INFO)
+            return {
+                "loaded_model": loaded_model,
+                "config": config,
+                "default_wav": f"{local_path}/samples/en_sample.wav"
+            }
+        except Exception as e:
+            print(f"error loading xtts model")
+            print(e)
+            return { "error": True }
