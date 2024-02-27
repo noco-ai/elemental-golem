@@ -17,6 +17,10 @@ class OpenAIImageGeneration(BaseHandler):
     def update_config(self, config_data):
         current_config = self.model_config
         merged_config = {**current_config, **config_data}
+        client = OpenAI(
+            api_key=merged_config["token"]
+        )
+        self.client = client
         self.model_config = merged_config
     
     def execute(self, model, request):        
@@ -30,7 +34,7 @@ class OpenAIImageGeneration(BaseHandler):
             size = "1024x1024"
 
         print("generating image")
-        response = model["client"].images.generate(
+        response = self.client.images.generate(
             model="dall-e-3",
             prompt=prompt,
             size=size,
@@ -45,4 +49,5 @@ class OpenAIImageGeneration(BaseHandler):
         client = OpenAI(
             api_key=model["secrets"]["token"]
         )
+        self.client = client
         return { "model_name": model["configuration"]["model"], "client": client }
