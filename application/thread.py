@@ -71,43 +71,49 @@ def send_ui_update(command, skill_key, server_id, channel):
         
 def worker_thread(amqp_params, stop_event, stop_generation_event, stop_generation_filter, thread_status, config_event, thread_config, 
                   device_and_status, skill, script_map, server_id):
-        
-    skill_key = skill["routing_key"]
-    short_hash = hashlib.sha256(skill_key.encode()).hexdigest()[:10]
-    queue_name = f"skill_{short_hash}"    
-    current_skill = load_class_for_skill(skill_key, script_map)
-    if current_skill is None:
-        logger.warning(f"could not load skill {skill['routing_key']}")
-        return
-        
-    amqp_connected, connection, channel = connect_to_amqp(**amqp_params)    
-    if amqp_connected == False:
-        return
-    
-    ## check to make sure mode will work on selected device
-    channel.basic_qos(prefetch_count=1)
-    device = device_and_status["device"]
-    root_device = device.split(":")[0]
-    if root_device == "split":
-        root_device = "cuda"
-        
-    if root_device not in skill["available_precision"]:
-        logger.warning(f"precision not defined for skill {skill['routing_key']}")
-        return
 
-    if device_and_status["use_precision"] not in skill["available_precision"][root_device]:
-        logger.warning(f"skill {skill['routing_key']} precision {device_and_status['use_precision']} not supported for device {root_device}")
-        return
+    try:
+        load_error = False    
+        skill_key = skill["routing_key"]
+        short_hash = hashlib.sha256(skill_key.encode()).hexdigest()[:10]
+        queue_name = f"skill_{short_hash}"    
+        current_skill = load_class_for_skill(skill_key, script_map)
+        if current_skill is None:
+            logger.warning(f"could not load skill {skill['routing_key']}")
+            return
+            
+        amqp_connected, connection, channel = connect_to_amqp(**amqp_params)    
+        if amqp_connected == False:
+            return
+        
+        ## check to make sure mode will work on selected device
+        channel.basic_qos(prefetch_count=1)
+        device = device_and_status["device"]
+        root_device = device.split(":")[0]
+        if root_device == "split":
+            root_device = "cuda"
+            
+        if root_device not in skill["available_precision"]:
+            logger.warning(f"precision not defined for skill {skill['routing_key']}")
+            return
 
-    # load the models
-    model_name = "" if "model" not in skill else skill["model"][0]["name"]
-    local_path = f"data/models/{model_name}"
-    
-    load_error = False
-    loaded_skill = current_skill.load(skill, device_and_status, local_path)
-    if "error" in loaded_skill and loaded_skill["error"] == True:
+        if device_and_status["use_precision"] not in skill["available_precision"][root_device]:
+            logger.warning(f"skill {skill['routing_key']} precision {device_and_status['use_precision']} not supported for device {root_device}")
+            return
+
+        # load the models
+        model_name = "" if "model" not in skill else skill["model"][0]["name"]
+        local_path = f"data/models/{model_name}"
+                
+        loaded_skill = current_skill.load(skill, device_and_status, local_path)
+        if "error" in loaded_skill and loaded_skill["error"] == True:
+            load_error = True
+
+    except Exception as e:
+        print(f"error loading model")
+        print(e)
         load_error = True
-
+    
     # try to load the model to device
     if "model" in loaded_skill:        
         try:

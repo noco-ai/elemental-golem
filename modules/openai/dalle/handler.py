@@ -36,7 +36,7 @@ class OpenAIImageGeneration(BaseHandler):
         if self.model_config["model"] == "dall-e-2":
             size = "512x512"
 
-        logger.info(f"generating image using {self.model_config["model"]}")
+        logger.info(f"generating image using {self.model_config['model']}")
         response = self.client.images.generate(
             model=self.model_config["model"],
             prompt=prompt,
