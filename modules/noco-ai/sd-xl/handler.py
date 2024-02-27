@@ -114,49 +114,54 @@ class StableDiffusionXl(BaseHandler):
         self.model_config = model["configuration"]
         self.routing_key = model["routing_key"]
 
-        is_turbo = model["configuration"]["is_turbo"]
-        if "civitai" not in local_path:             
-            logger.info("loading sd xl model")           
-            load_model = StableDiffusionXLPipeline.from_pretrained(local_path, torch_dtype=torch.float16, use_safetensors=True, variant="fp16")            
-        else:            
-            logger.info("loading civit sd xl model")
-            load_model = StableDiffusionXLPipeline.from_single_file(local_path, torch_dtype=torch.float16, variant="fp16")        
+        try:                        
+            is_turbo = model["configuration"]["is_turbo"]
+            if "civitai" not in local_path:             
+                logger.info("loading sd xl model")           
+                load_model = StableDiffusionXLPipeline.from_pretrained(local_path, torch_dtype=torch.float16, use_safetensors=True, variant="fp16")            
+            else:            
+                logger.info("loading civit sd xl model")
+                load_model = StableDiffusionXLPipeline.from_single_file(local_path, torch_dtype=torch.float16, variant="fp16")        
 
-        compel = Compel(
-            tokenizer=[load_model.tokenizer, load_model.tokenizer_2] ,
-            text_encoder=[load_model.text_encoder, load_model.text_encoder_2],
-            returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
-            requires_pooled=[False, True]
-        )
-
-        ret = {
-            "model": load_model,
-            "device": model_options["device"],            
-            "device_memory": model["memory_usage"][model_options["use_precision"]],
-            "compel": compel
-        }
-
-        # load the refiner model
-        if is_turbo == False:            
-            load_model.scheduler = KDPM2DiscreteScheduler.from_config(load_model.scheduler.config)
-            logger.info("loading sd xl refiner")           
-            load_refiner = DiffusionPipeline.from_pretrained(
-                "./data/models/stabilityai/stable-diffusion-xl-refiner-1.0",
-                text_encoder_2=load_model.text_encoder_2,
-                vae=load_model.vae,
-                torch_dtype=torch.float16,
-                use_safetensors=True,
-                variant="fp16"
-            )
-            load_refiner.to(model_options["device"])
-            ret["refiner"] = load_refiner
-
-            compel_refiner = Compel(
-                tokenizer=[load_refiner.tokenizer_2],
-                text_encoder=[load_refiner.text_encoder_2],
+            compel = Compel(
+                tokenizer=[load_model.tokenizer, load_model.tokenizer_2] ,
+                text_encoder=[load_model.text_encoder, load_model.text_encoder_2],
                 returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
-                requires_pooled=[True],
+                requires_pooled=[False, True]
             )
-            ret["compel_refiner"] = compel_refiner
 
-        return ret
+            ret = {
+                "model": load_model,
+                "device": model_options["device"],            
+                "device_memory": model["memory_usage"][model_options["use_precision"]],
+                "compel": compel
+            }
+
+            # load the refiner model
+            if is_turbo == False:            
+                load_model.scheduler = KDPM2DiscreteScheduler.from_config(load_model.scheduler.config)
+                logger.info("loading sd xl refiner")           
+                load_refiner = DiffusionPipeline.from_pretrained(
+                    "./data/models/stabilityai/stable-diffusion-xl-refiner-1.0",
+                    text_encoder_2=load_model.text_encoder_2,
+                    vae=load_model.vae,
+                    torch_dtype=torch.float16,
+                    use_safetensors=True,
+                    variant="fp16"
+                )
+                load_refiner.to(model_options["device"])
+                ret["refiner"] = load_refiner
+
+                compel_refiner = Compel(
+                    tokenizer=[load_refiner.tokenizer_2],
+                    text_encoder=[load_refiner.text_encoder_2],
+                    returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
+                    requires_pooled=[True],
+                )
+                ret["compel_refiner"] = compel_refiner
+
+            return ret
+        except Exception as e:
+            print(f"error loading sdxl model")
+            print(e)
+            return { "error": True }

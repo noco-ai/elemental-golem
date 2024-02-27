@@ -97,19 +97,25 @@ class StableDiffusion(BaseHandler):
         self.routing_key = model["routing_key"]
         self.model_configuration = model["configuration"]
 
-        if "civitai" not in local_path: 
-            logger.info("loading standard sd model")           
-            load_model = StableDiffusionPipeline.from_pretrained(local_path, torch_dtype=torch.float16, safety_checker=None)
-        else:
-            logger.info("loading civit sd model")
-            load_model = StableDiffusionPipeline.from_single_file(local_path, load_safety_checker=False, torch_dtype=torch.float16)
-        
-        load_model.scheduler = KDPM2DiscreteScheduler.from_config(load_model.scheduler.config)
-        compel = Compel(tokenizer=load_model.tokenizer, text_encoder=load_model.text_encoder)
+        try:
+            if "civitai" not in local_path: 
+                logger.info("loading standard sd model")           
+                load_model = StableDiffusionPipeline.from_pretrained(local_path, torch_dtype=torch.float16, safety_checker=None)
+            else:
+                logger.info("loading civit sd model")
+                load_model = StableDiffusionPipeline.from_single_file(local_path, load_safety_checker=False, torch_dtype=torch.float16)
+            
+            load_model.scheduler = KDPM2DiscreteScheduler.from_config(load_model.scheduler.config)
+            compel = Compel(tokenizer=load_model.tokenizer, text_encoder=load_model.text_encoder)
 
-        return {
-            "model": load_model,
-            "device": model_options["device"],
-            "device_memory": model["memory_usage"][model_options["use_precision"]],
-            "compel": compel
-        }
+            return {
+                "model": load_model,
+                "device": model_options["device"],
+                "device_memory": model["memory_usage"][model_options["use_precision"]],
+                "compel": compel
+            }
+    
+        except Exception as e:
+            print(f"error loading sd model")
+            print(e)
+            return { "error": True }
