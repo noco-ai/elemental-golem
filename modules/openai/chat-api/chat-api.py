@@ -21,8 +21,13 @@ class OpenAIChatApi(LlmHandler):
     
     def update_config(self, config_data):
         current_config = self.model_config
-        merged_config = {**current_config, **config_data}
+        merged_config = {**current_config, **config_data}        
+        client = OpenAI(
+            api_key=merged_config["token"]
+        )
+        self.client = client
         self.model_config = merged_config
+        
 
     def clip_messages(self, request, config):        
         clipped_messages = []
@@ -63,7 +68,7 @@ class OpenAIChatApi(LlmHandler):
 
         print(f'sending request to openai api')
         check_stop_token, stop_conditions = self.build_stop_conditions(config["stop_on"])        
-        response = model["client"].chat.completions.create(
+        response = self.client.chat.completions.create(
             model=model["model_name"],
             stream=stream_output,
             messages=clipped_messages,
@@ -135,4 +140,5 @@ class OpenAIChatApi(LlmHandler):
         client = OpenAI(
             api_key=model["secrets"]["token"]
         )
+        self.client = client
         return { "model_name": model["configuration"]["model"], "client": client }
