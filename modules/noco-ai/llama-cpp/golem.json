@@ -14,9 +14,7 @@
                 "name": "TheBloke/Llama-2-7B-chat-GGUF",
                 "provider": "huggingface",
                 "files": {
-                    "4-bit": "llama-2-7b-chat.Q4_0.gguf",
-                    "5-bit": "llama-2-7b-chat.Q5_0.gguf",
-                    "6-bit": "llama-2-7b-chat.Q6_K.gguf"
+                    "4-bit": "llama-2-7b-chat.Q4_0.gguf"
                 }
             }],
             "configuration": {
@@ -42,8 +40,7 @@
                 "name": "TheBloke/Llama-2-13B-chat-GGUF",
                 "provider": "huggingface",
                 "files": {
-                    "4-bit": "llama-2-13b-chat.Q4_0.gguf",
-                    "6-bit": "llama-2-13b-chat.Q6_K.gguf"
+                    "4-bit": "llama-2-13b-chat.Q4_0.gguf"
                 }
             }],
             "configuration": {
@@ -86,83 +83,30 @@
             }        
         },
         {
-            "label":  "Mistral 7B (GGUF)",
-            "routing_key": "mistral_7b_gguf",            
+            "label":  "Mistral 7B Instruct (GGUF)",
+            "routing_key": "mistral_7b_instruct_gguf",            
             "use": ["language_model"],                    
-            "special_ability": ["foundational"],
             "available_precision": { "cuda": ["4-bit", "6-bit"] },
             "memory_usage": { "4-bit": 6900, "6-bit": 11000 },
             "model": [{
-                "name": "TheBloke/Mistral-7B-v0.1-GGUF",
+                "name": "TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
                 "provider": "huggingface",
                 "files": {
-                    "4-bit": "mistral-7b-v0.1.Q4_K_M.gguf",
-                    "6-bit": "mistral-7b-v0.1.Q6_K.gguf"
+                    "4-bit": "mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+                    "6-bit": "mistral-7b-instruct-v0.2.Q6_K.gguf"
                 }
             }],
             "configuration": {           
                 "model_layers": 35,     
                 "max_seq_len": 8192,
-                "user_role": "### USER:",
-                "ai_role": "### ASSISTANT:",
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
                 "stop_on": ["<stop>", "### USER:"],
-                "system_prompt_format": "### SYSTEM: {system_prompt}\n\n",
-                "default_lora": "noco-ai/multishot-mistral-7b",
-                "system_message": "You are a AI chatbot, answer all the users questions to the best of your ability.",
-                "prompt_format": "{user_role} {prompt}\n{ai_role} {response}\n"
+                "system_prompt_format": "[INST] {system_prompt} [/INST] ",
+                "system_message": "",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response} "
             }
-        },        
-        {
-            "label":  "Yi 34B 200k (GGUF)",
-            "routing_key": "yi_34b_gguf",            
-            "use": ["language_model"],        
-            "available_precision": { "cpu": ["4-bit", "6-bit"], "cuda": ["4-bit", "6-bit"] },
-            "memory_usage": { "4-bit": 22000, "6-bit": 31500 },            
-            "model": [{
-                "name": "TheBloke/Yi-34B-200K-Llamafied-GGUF",
-                "provider": "huggingface",
-                "files": {
-                    "4-bit": "yi-34b-200k-llamafied.Q4_K_M.gguf",
-                    "6-bit": "yi-34b-200k-llamafied.Q6_K.gguf"
-                }
-            }],
-            "configuration": {
-                "default_lora": "noco-ai/yaya",
-                "model_layers": 63,
-                "num_threads": -1,
-                "max_seq_len": 16384,
-                "user_role": "",
-                "ai_role": "",
-                "stop_on": ["<stop>", "USER:", "</s>"],
-                "system_message": "",
-                "prompt_format": "{user_role} {prompt}\n{ai_role} {response}\n\n"
-            }        
-        },
-        {
-            "label":  "Nous Capybara 34B (GGUF)",
-            "routing_key": "nous_capybara_gguf",            
-            "use": ["language_model"],        
-            "available_precision": { "cpu": ["4-bit", "6-bit"], "cuda": ["4-bit", "6-bit"] },
-            "memory_usage": { "4-bit": 22000, "6-bit": 31500 },            
-            "model": [{
-                "name": "TheBloke/Nous-Capybara-34B-GGUF",
-                "provider": "huggingface",
-                "files": {
-                    "4-bit": "nous-capybara-34b.Q4_K_M.gguf",
-                    "6-bit": "nous-capybara-34b.Q6_K.gguf"
-                }
-            }],
-            "configuration": {
-                "model_layers": 63,
-                "num_threads": -1,
-                "max_seq_len": 16384,
-                "user_role": "USER:",
-                "ai_role": "ASSISTANT:",
-                "stop_on": ["<stop>", "USER:", "</s>"],
-                "system_message": "",
-                "prompt_format": "{user_role} {prompt}\n{ai_role} {response}\n\n"
-            }        
-        },
+        },                       
         {
             "label":  "Llama2 70B Chat (GGUF)",
             "routing_key": "llama_70b_chat_gguf",            
@@ -193,6 +137,59 @@
                 "prompt_format": "{user_role} {prompt} {ai_role} {response}",
                 "system_message": "You are an helpful assistant."
             }        
+        },
+        {
+            "label":  "CodeLlama 70B Instruct (GGUF)",
+            "routing_key": "codellama_70b_instruct_gguf",            
+            "use": ["language_model"],        
+            "available_precision": { "cpu": ["4-bit", "5-bit"], "cuda": ["4-bit", "5-bit"] },
+            "memory_usage": { "4-bit": 41500, "5-bit": 48000 },            
+            "model": [{
+                "name": "LoneStriker/CodeLlama-70b-Instruct-hf-GGUF",
+                "provider": "huggingface",
+                "files": {
+                    "4-bit": "CodeLlama-70b-Instruct-hf-Q4_K_M.gguf"
+                }
+            }],
+            "configuration": {
+                "model_layers": 83,
+                "num_threads": -1,
+                "model_type": "chat",
+                "max_seq_len": 4096,
+                "user_role": "Source: user",
+                "ai_role": "Source: assistant",
+                "stop_on": ["<stop>", "Source:", "Source:"],
+                "system_prompt_format": "Source: system\n\n{system_prompt}<step> ",
+                "prompt_format": "{user_role}\n\n{prompt}<step> {ai_role} Destination: user\n{response}",
+                "system_message": "You are an expert in coding Magento 2"
+            }        
+        },
+        {
+            "label":  "Mixtral 8x7B Instruct (GGUF)",
+            "routing_key": "mixtral_8x7b_instruct",
+            "use": ["language_model", "reasoning_agent"],        
+            "available_precision": { "cpu": ["4-bit", "5-bit", "6-bit"], "cuda": ["4-bit", "5-bit", "6-bit"] },
+            "memory_usage": { "4-bit": 28000, "5-bit": 33500, "6-bit": 39000 },            
+            "model": [{
+                "name": "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
+                "provider": "huggingface",
+                "files": {
+                    "4-bit": "mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf",
+                    "5-bit": "mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf",
+                    "6-bit": "mixtral-8x7b-instruct-v0.1.Q6_K.gguf"
+                }
+            }],
+            "configuration": {
+                "model_layers": 63,
+                "num_threads": -1,
+                "max_seq_len": 16384,                                
+                "user_role": "[INST]",
+                "ai_role": "[/INST]",
+                "stop_on": ["<stop>", "[/INST]"],
+                "system_prompt_format": "[INST] {system_prompt}\nRespond with OK if you understand. [/INST] OK ",
+                "system_message": "",
+                "prompt_format": "{user_role} {prompt} {ai_role} {response} "
+            }        
         }
-    ]    
+    ] 
 }

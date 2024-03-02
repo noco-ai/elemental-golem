@@ -71,62 +71,71 @@ def send_ui_update(command, skill_key, server_id, channel):
         
 def worker_thread(amqp_params, stop_event, stop_generation_event, stop_generation_filter, thread_status, config_event, thread_config, 
                   device_and_status, skill, script_map, server_id):
-        
-    skill_key = skill["routing_key"]
-    short_hash = hashlib.sha256(skill_key.encode()).hexdigest()[:10]
-    queue_name = f"skill_{short_hash}"    
-    current_skill = load_class_for_skill(skill_key, script_map)
-    if current_skill is None:
-        logger.warning(f"could not load skill {skill['routing_key']}")
-        return
-        
-    amqp_connected, connection, channel = connect_to_amqp(**amqp_params)
-    if amqp_connected == False:
-        return
-    
-    ## check to make sure mode will work on selected device
-    device = device_and_status["device"]
-    root_device = device.split(":")[0]
-    if root_device == "split":
-        root_device = "cuda"
-        
-    if root_device not in skill["available_precision"]:
-        logger.warning(f"precision not defined for skill {skill['routing_key']}")
-        return
 
-    if device_and_status["use_precision"] not in skill["available_precision"][root_device]:
-        logger.warning(f"skill {skill['routing_key']} precision {device_and_status['use_precision']} not supported for device {root_device}")
-        return
+    load_error = False    
+    loaded_skill = {}
+    try:        
+        skill_key = skill["routing_key"]
+        short_hash = hashlib.sha256(skill_key.encode()).hexdigest()[:10]
+        queue_name = f"skill_{short_hash}"    
+        current_skill = load_class_for_skill(skill_key, script_map)
+        if current_skill is None:
+            logger.warning(f"could not load skill {skill['routing_key']}")
+            return
+            
+        amqp_connected, connection, channel = connect_to_amqp(**amqp_params)    
+        if amqp_connected == False:
+            return
+        
+        ## check to make sure mode will work on selected device
+        channel.basic_qos(prefetch_count=1)
+        device = device_and_status["device"]
+        root_device = device.split(":")[0]
+        if root_device == "split":
+            root_device = "cuda"
+            
+        if root_device not in skill["available_precision"]:
+            logger.warning(f"precision not defined for skill {skill['routing_key']}")
+            return
 
-    # load the models
-    model_name = "" if "model" not in skill else skill["model"][0]["name"]
-    local_path = f"data/models/{model_name}"
-    
-    load_error = False
-    loaded_skill = current_skill.load(skill, device_and_status, local_path)
-    if "error" in loaded_skill and loaded_skill["error"] == True:
-        load_error = True
+        if device_and_status["use_precision"] not in skill["available_precision"][root_device]:
+            logger.warning(f"skill {skill['routing_key']} precision {device_and_status['use_precision']} not supported for device {root_device}")
+            return
 
-    # try to load the model to device
-    if "model" in loaded_skill:        
-        try:
-            loaded_skill["model"].to(device)
-            logger.info(f"skill {skill_key} loaded to {device}")    
-        except:        
+        # load the models
+        model_name = "" if "model" not in skill else skill["model"][0]["name"]
+        local_path = f"data/models/{model_name}"
+                
+        loaded_skill = current_skill.load(skill, device_and_status, local_path)
+        if "error" in loaded_skill and loaded_skill["error"] == True:
+            load_error = True
+
+            # try to load the model to device
+        if "model" in loaded_skill:        
             try:
-                loaded_skill["model"].device = torch.device(device)
-                loaded_skill["model"].model.to(device)       
+                loaded_skill["model"].to(device)
                 logger.info(f"skill {skill_key} loaded to {device}")    
-            except Exception as e:
-                logger.error("error occured while loading model", e)
-                load_error = True                
+            except:        
+                try:
+                    loaded_skill["model"].device = torch.device(device)
+                    loaded_skill["model"].model.to(device)       
+                    logger.info(f"skill {skill_key} loaded to {device}")    
+                except Exception as e:
+                    logger.error("error occured while loading model", e)
+                    load_error = True                
+
+    except Exception as e:
+        print(f"error loading model")
+        print(e)
+        load_error = True        
 
     if load_error == False:
         try:                        
-            create_queue(channel=channel, queue_name=queue_name, dlx='deadletter', dlx_queue='deadletters', is_auto_delete=True)
+            create_queue(channel=channel, queue_name=queue_name, dlx='deadletter', dlx_queue='deadletters', is_auto_delete=False)
             bind_queue_to_exchange(channel, queue_name, 'golem_skill', skill["routing_key"])
             loaded_skill["secrets"] = skill["secrets"]
             loaded_skill["amqp_channel"] = channel    
+            loaded_skill["amqp_connection"] = connection
         except Exception as e:        
             logger.error("failed to bind to queue", e)    
     
@@ -142,7 +151,7 @@ def worker_thread(amqp_params, stop_event, stop_generation_event, stop_generatio
             channel.basic_reject(delivery_tag=method.delivery_tag, requeue=False)
             return
 
-        if any(key not in properties.headers for key in ["return_exchange", "return_routing_key", "command"]):
+        if not hasattr(properties, 'headers') or properties.headers == None or any(key not in properties.headers for key in ["return_exchange", "return_routing_key", "command"]):
             channel.basic_reject(delivery_tag=method.delivery_tag, requeue=False)
             logger.error('missing required amqp headers')
             return
@@ -220,6 +229,8 @@ def worker_thread(amqp_params, stop_event, stop_generation_event, stop_generatio
             break
         
         if load_error and thread_string == "STOPPING":
+            thread_status.raw = bytes('\0' * 24, 'utf-8')  
+            thread_status.raw = bytes("STOPPED", "utf-8")
             break
 
         if config_event.is_set():
@@ -239,13 +250,21 @@ def stop_all_threads(amqp_channel):
         thread["thread_status"].raw = bytes("STOPPING", "utf-8") 
         thread["stop_event"].set()
         send_message_to_exchange(amqp_channel, "golem_skill", thread["routing_key"], "STOP", None)            
+        timeout = 0
         while True:
-            time.sleep(2)
+            timeout += 1
+            if timeout >= 15:
+                logger.error(f"could not stop thread {thread['routing_key']}")
+                break
+
+            time.sleep(1)
             thread_string = bytes(thread["thread_status"].raw).rstrip(b'\x00').decode("utf-8")
             if thread_string == "STOPPED":
                 break
 
-        thread["process"].join()
+        if timeout < 15:
+            thread["process"].join()
+
         del worker_threads[i]
 
 def stop_worker_thread(skill_details, amqp_channel):
@@ -256,13 +275,22 @@ def stop_worker_thread(skill_details, amqp_channel):
             thread["thread_status"].raw = bytes('\0' * 24, 'utf-8')   
             thread["thread_status"].raw = bytes("STOPPING", "utf-8") 
             thread["stop_event"].set()
-            send_message_to_exchange(amqp_channel, "golem_skill", skill_details["routing_key"], "STOP", None)            
+            send_message_to_exchange(amqp_channel, "golem_skill", skill_details["routing_key"], "STOP", None)        
+            timeout = 0    
             while True:
+                timeout += 1
+                if timeout >= 15:
+                    logger.error(f"could not stop thread {thread['routing_key']}")
+                    break
+
+                time.sleep(1)
                 thread_string = bytes(thread["thread_status"].raw).rstrip(b'\x00').decode("utf-8")
                 if thread_string == "STOPPED":
                     break
 
-            thread["process"].join()
+            if timeout < 15:
+                thread["process"].join()
+
             del worker_threads[i]
             return            
 

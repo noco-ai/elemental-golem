@@ -16,7 +16,8 @@ def connect_to_amqp(amqp_ip, amqp_user, amqp_password, amqp_vhost):
                 credentials=credentials,
                 connection_attempts=5,
                 retry_delay=5,
-                socket_timeout=600
+                socket_timeout=600,
+                heartbeat=300
             )
         )
         channel = connection.channel()

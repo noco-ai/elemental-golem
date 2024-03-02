@@ -19,7 +19,8 @@ class ProgressStreamer(BaseStreamer):
             send_body = {
                 "total": self.max_new_tokens,
                 "current": self.token_count,
-                "label": self.label
+                "label": self.label,
+                "model": self.model
             }
             
             self.amqp_config["channel"].basic_publish(
@@ -31,11 +32,12 @@ class ProgressStreamer(BaseStreamer):
         if self.show_bar:
             self.progress_bar.close()        
 
-    def configure(self, max_new_tokens, label, amqp_config = None, show_bar = True):
+    def configure(self, max_new_tokens, label, model, amqp_config = None, show_bar = True):
         self.max_new_tokens = max_new_tokens
         self.show_bar = show_bar
         self.amqp_config = amqp_config        
         self.token_count = 0
         self.label = label
+        self.model = model
         if show_bar:
             self.progress_bar = tqdm(total=max_new_tokens)

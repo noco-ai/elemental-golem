@@ -1,8 +1,10 @@
-torch>=2.0.1
+torch==2.1.0
+torchaudio==2.1.0
 safetensors==0.3.2
 sentencepiece>=0.1.97
 ninja==1.11.1
 tiktoken==0.3.3
+numpy==1.22
 ninja
 hvac
 pynvml
@@ -20,6 +22,10 @@ protobuf
 accelerate
 diffusers
 timm
-openai==0.28
-exllamav2
+openai
 sseclient-py
+TTS==0.22.0
+soundfile
+exllamav2
+compel
+chardet

@@ -106,7 +106,12 @@ def download_model(model, install_skill, shared_models, server_id, channel):
 
     try:        
         if provider == 'huggingface':
-            if os.path.exists(f'data/models/{name}'):
+
+            if single_file:
+                if os.path.exists(f'data/models/{name}/{model["files"][install_skill["precision"]]}'):
+                    logger.info(f"already downloaded model: {name}")
+                    return
+            elif os.path.exists(f'data/models/{name}'):
                 logger.info(f"already downloaded model: {name}")
                 return
             

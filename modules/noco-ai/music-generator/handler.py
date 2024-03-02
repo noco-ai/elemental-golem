@@ -34,9 +34,9 @@ class MusicGen(BaseHandler):
                 "outgoing_properties": outgoing_properties,
                 "channel": model["amqp_channel"]
             }            
-            self.progress_streamer.configure(max_new_tokens, self.model_config["progress_label"], amqp_config)
+            self.progress_streamer.configure(max_new_tokens, self.model_config["progress_label"], self.routing_key, amqp_config)
         else:
-            self.progress_streamer.configure(max_new_tokens, self.model_config["progress_label"])
+            self.progress_streamer.configure(max_new_tokens, self.model_config["progress_label"], self.routing_key)
 
         # Assuming the model function can take these parameters:
         logger.info(f"prompt: {prompt}, seconds: {seconds}, max new tokens: {max_new_tokens}, guidance scale: {guidance_scale}")
@@ -58,6 +58,7 @@ class MusicGen(BaseHandler):
     
     def load(self, model, model_options, local_path):        
         self.model_config = model["configuration"]      
+        self.routing_key = model["routing_key"]
         processor = AutoProcessor.from_pretrained(local_path)
         load_model = MusicgenForConditionalGeneration.from_pretrained(local_path)        
 

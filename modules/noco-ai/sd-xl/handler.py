@@ -5,6 +5,7 @@ from io import BytesIO
 import logging
 import torch
 from diffusers import StableDiffusionXLPipeline, KDPM2DiscreteScheduler, DiffusionPipeline
+from compel import Compel, ReturnedEmbeddingsType
 import copy
 import json
 
@@ -40,10 +41,12 @@ class StableDiffusionXl(BaseHandler):
             return callback_kwargs    
         
         self.current_step = self.current_step + 1
+        label = self.model_config["progress_label"] if "progress_label" in self.model_config else self.routing_key
         send_body = {
             "total": self.total_steps,
             "current": self.current_step,
-            "label": self.routing_key
+            "label": label,
+            "model": self.routing_key
         }
             
         self.amqp_progress_config["channel"].basic_publish(
@@ -67,7 +70,7 @@ class StableDiffusionXl(BaseHandler):
         if self.model_config["is_turbo"] == True and steps > 4:
             guidance_scale = 0.0            
             steps = 4
-
+        
         high_noise_frac = 0.8
         if self.stream_progress == True:
             progress_headers = copy.deepcopy(model["amqp_headers"])
@@ -85,13 +88,18 @@ class StableDiffusionXl(BaseHandler):
 
         latent_data = self.get_latents(num_images_per_prompt, height, width, seed, self.model_options["device"], model["model"])
         logger.info(f"prompt: {prompt}, height: {height}, width: {width}, steps: {steps}, guidance scale: {guidance_scale}, seed: {latent_data['seed']}")
+        conditioning, pooled = model["compel"](prompt)
+        negative_conditioning, negative_pooled = model["compel"](negative_prompt)
 
         if self.model_config["is_turbo"] == False:            
-            base_image = model["model"](prompt, height=height, width=width, num_inference_steps=steps, callback_on_step_end=self.step_callback, latents=latent_data["latents"], denoising_end=high_noise_frac,
-                            negative_prompt=negative_prompt, guidance_scale=guidance_scale, num_images_per_prompt=num_images_per_prompt, output_type="latent").images        
-            image = model["refiner"](prompt=prompt, num_inference_steps=steps, denoising_start=high_noise_frac, image=base_image, callback_on_step_end=self.step_callback).images[0]
+            conditioning_refiner, pooled_refiner = model["compel_refiner"](prompt)
+            negative_conditioning_refiner, negative_pooled_refiner = model["compel_refiner"](negative_prompt)
+            base_image = model["model"](prompt_embeds=conditioning, pooled_prompt_embeds=pooled, height=height, width=width, num_inference_steps=steps, callback_on_step_end=self.step_callback, latents=latent_data["latents"], denoising_end=high_noise_frac,
+                            negative_prompt_embeds=negative_conditioning, negative_pooled_prompt_embeds=negative_pooled, guidance_scale=guidance_scale, num_images_per_prompt=num_images_per_prompt, output_type="latent").images        
+            image = model["refiner"](prompt_embeds=conditioning_refiner, pooled_prompt_embeds=pooled_refiner, negative_prompt_embeds=negative_conditioning_refiner,
+                            negative_pooled_prompt_embeds=negative_pooled_refiner, num_inference_steps=steps, denoising_start=high_noise_frac, image=base_image, callback_on_step_end=self.step_callback).images[0]
         else:
-            image = model["model"](prompt, height=height, width=width, num_inference_steps=steps, latents=latent_data["latents"], 
+            image = model["model"](prompt_embeds=conditioning, pooled_prompt_embeds=pooled, height=height, width=width, num_inference_steps=steps, latents=latent_data["latents"], 
                             guidance_scale=guidance_scale, num_images_per_prompt=num_images_per_prompt, callback_on_step_end=self.step_callback).images[0]
 
         buffered = BytesIO()
@@ -106,33 +114,54 @@ class StableDiffusionXl(BaseHandler):
         self.model_config = model["configuration"]
         self.routing_key = model["routing_key"]
 
-        is_turbo = model["configuration"]["is_turbo"]
-        if "civitai" not in local_path:             
-            logger.info("loading sd xl model")           
-            load_model = StableDiffusionXLPipeline.from_pretrained(local_path, torch_dtype=torch.float16, use_safetensors=True, variant="fp16")            
-        else:            
-            logger.info("loading civit sd xl model")
-            load_model = StableDiffusionXLPipeline.from_single_file(local_path, torch_dtype=torch.float16, variant="fp16")        
+        try:                        
+            is_turbo = model["configuration"]["is_turbo"]
+            if "civitai" not in local_path:             
+                logger.info("loading sd xl model")           
+                load_model = StableDiffusionXLPipeline.from_pretrained(local_path, torch_dtype=torch.float16, use_safetensors=True, variant="fp16")            
+            else:            
+                logger.info("loading civit sd xl model")
+                load_model = StableDiffusionXLPipeline.from_single_file(local_path, torch_dtype=torch.float16, variant="fp16")        
 
-        ret = {
-            "model": load_model,
-            "device": model_options["device"],            
-            "device_memory": model["memory_usage"][model_options["use_precision"]]
-        }
-
-        # load the refiner model
-        if is_turbo == False:            
-            load_model.scheduler = KDPM2DiscreteScheduler.from_config(load_model.scheduler.config)
-            logger.info("loading sd xl refiner")           
-            load_refiner = DiffusionPipeline.from_pretrained(
-                "./data/models/stabilityai/stable-diffusion-xl-refiner-1.0",
-                text_encoder_2=load_model.text_encoder_2,
-                vae=load_model.vae,
-                torch_dtype=torch.float16,
-                use_safetensors=True,
-                variant="fp16"
+            compel = Compel(
+                tokenizer=[load_model.tokenizer, load_model.tokenizer_2] ,
+                text_encoder=[load_model.text_encoder, load_model.text_encoder_2],
+                returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
+                requires_pooled=[False, True]
             )
-            load_refiner.to(model_options["device"])
-            ret["refiner"] = load_refiner
 
-        return ret
+            ret = {
+                "model": load_model,
+                "device": model_options["device"],            
+                "device_memory": model["memory_usage"][model_options["use_precision"]],
+                "compel": compel
+            }
+
+            # load the refiner model
+            if is_turbo == False:            
+                load_model.scheduler = KDPM2DiscreteScheduler.from_config(load_model.scheduler.config)
+                logger.info("loading sd xl refiner")           
+                load_refiner = DiffusionPipeline.from_pretrained(
+                    "./data/models/stabilityai/stable-diffusion-xl-refiner-1.0",
+                    text_encoder_2=load_model.text_encoder_2,
+                    vae=load_model.vae,
+                    torch_dtype=torch.float16,
+                    use_safetensors=True,
+                    variant="fp16"
+                )
+                load_refiner.to(model_options["device"])
+                ret["refiner"] = load_refiner
+
+                compel_refiner = Compel(
+                    tokenizer=[load_refiner.tokenizer_2],
+                    text_encoder=[load_refiner.text_encoder_2],
+                    returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
+                    requires_pooled=[True],
+                )
+                ret["compel_refiner"] = compel_refiner
+
+            return ret
+        except Exception as e:
+            print(f"error loading sdxl model")
+            print(e)
+            return { "error": True }

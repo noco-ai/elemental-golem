@@ -65,6 +65,12 @@ class GolemExLlamaGenerator(LlmHandler):
         generator.settings.top_p = top_p        
         begin_time = time.time()
 
+        if "start_response" in request and stream_output:
+            channel.basic_publish(
+                    exchange=incoming_headers['return_exchange'], 
+                    routing_key=incoming_headers['return_routing_key'], 
+                    body=request["start_response"], properties=outgoing_properties)
+            
         generator.gen_begin(ids)
         generator.begin_beam_search()
         for i in range(max_new_tokens):

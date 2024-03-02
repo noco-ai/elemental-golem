@@ -82,6 +82,12 @@ class ExllamaV2Generator(LlmHandler):
         #settings.token_repetition_penalty = 1.05
         socket_id = incoming_headers["socket_id"] if "socket_id" in incoming_headers else None
 
+        if "start_response" in request and stream_output:
+            channel.basic_publish(
+                    exchange=incoming_headers['return_exchange'], 
+                    routing_key=incoming_headers['return_routing_key'], 
+                    body=request["start_response"], properties=outgoing_properties)
+
         generated_tokens = 0
         stop_generation_counter = 0
         generator.begin_stream(input_ids, settings, loras = lora)        

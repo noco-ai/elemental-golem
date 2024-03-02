@@ -1,6 +1,6 @@
 from application.llm_handler import LlmHandler
 from pika import BasicProperties
-import openai
+from openai import OpenAI
 import logging
 import tiktoken
 import time
@@ -21,8 +21,13 @@ class OpenAIChatApi(LlmHandler):
     
     def update_config(self, config_data):
         current_config = self.model_config
-        merged_config = {**current_config, **config_data}
+        merged_config = {**current_config, **config_data}        
+        client = OpenAI(
+            api_key=merged_config["token"]
+        )
+        self.client = client
         self.model_config = merged_config
+        
 
     def clip_messages(self, request, config):        
         clipped_messages = []
@@ -61,18 +66,19 @@ class OpenAIChatApi(LlmHandler):
         begin_time = time.time()        
         config = self.model_config
 
+        print(f'sending request to openai api')
         check_stop_token, stop_conditions = self.build_stop_conditions(config["stop_on"])        
-        response = openai.ChatCompletion.create(
-          model=model["model_name"],
-          stream=stream_output,
-          messages=clipped_messages,
-          temperature=temperature,
-          max_tokens=max_new_tokens,
-          stop=stop_conditions,
-          presence_penalty=config.get("presence_penalty", 0),
-          frequency_penalty=config.get("frequency_penalty", 0),
-          top_p=top_p
-        )
+        response = self.client.chat.completions.create(
+            model=model["model_name"],
+            stream=stream_output,
+            messages=clipped_messages,
+            temperature=temperature,
+            max_tokens=max_new_tokens,
+            stop=stop_conditions,
+            presence_penalty=config.get("presence_penalty", 0),
+            frequency_penalty=config.get("frequency_penalty", 0),
+            top_p=top_p
+        )        
 
         channel = model["amqp_channel"]
         incoming_headers = model["amqp_headers"]
@@ -93,7 +99,7 @@ class OpenAIChatApi(LlmHandler):
             outgoing_properties = BasicProperties(headers=outgoing_headers)
             stop_generation_counter = 0
 
-            for chunk in response:                
+            for chunk in response:        
                 stop_generation, stop_generation_counter = self.check_stop_generation(stop_generation_counter, 
                                     model["stop_generation_event"], model["stop_generation_filter"], socket_id)
                 
@@ -101,35 +107,38 @@ class OpenAIChatApi(LlmHandler):
                     finish_reason = "abort"
                     break                
 
-                new_tokens += 1
-                if "content" in chunk['choices'][0]['delta']:                
-                    if len(chunk['choices'][0]['delta']['content']) == 0:
-                        continue
+                new_tokens += 1                
+                if chunk.choices[0].delta.content == None:
+                    continue
 
-                    if debug:
-                        print('\033[96m' + chunk['choices'][0]['delta']['content'], end="")
+                if debug:
+                    print('\033[96m' + chunk.choices[0].delta.content, end="")
 
-                    response_str += chunk['choices'][0]['delta']['content']
-                    channel.basic_publish(
-                        exchange=incoming_headers['return_exchange'], 
-                        routing_key=incoming_headers['return_routing_key'], 
-                        body=chunk['choices'][0]['delta']['content'], properties=outgoing_properties)
+                response_str += chunk.choices[0].delta.content
+                channel.basic_publish(
+                    exchange=incoming_headers['return_exchange'], 
+                    routing_key=incoming_headers['return_routing_key'], 
+                    body=chunk.choices[0].delta.content, properties=outgoing_properties)
 
             if debug:
                 print('\033[0m' + "")
         else:
-            response_str = response['choices'][0]['message']['content']
-            new_tokens = response['usage']['completion_tokens']
+            response_str = response.choices[0].message.content
+            new_tokens = response.usage.completion_tokens
 
         end_time = time.time()
         elapsed = end_time - begin_time
         token_rate = 0 if elapsed == 0 else (new_tokens / elapsed)        
         model_name = incoming_headers["model_name"] if "model_name" in incoming_headers else "not_provided"
+        request["start_response"] = ""
         resp = self.finish_response(stop_key, response_str, request, stream_output, finish_reason, 
                                         token_rate, new_tokens, input_token_count, model_name, elapsed, debug)        
         return resp
 
     def load(self, model, model_options, local_path):         
         self.model_config = model["configuration"]            
-        openai.api_key = model["secrets"]["token"]
-        return { "model_name": model["configuration"]["model"] }
+        client = OpenAI(
+            api_key=model["secrets"]["token"]
+        )
+        self.client = client
+        return { "model_name": model["configuration"]["model"], "client": client }

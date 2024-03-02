@@ -3,7 +3,7 @@
     "description": "Handler for loading Meta MusicGen models.",
     "unique_key": "musicgen",
     "script": "handler.py",
-    "skills": [
+    "skills": [       
         {
             "label":  "MusicGen Small",
             "routing_key": "musicgen_small",            

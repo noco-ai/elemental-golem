@@ -1,0 +1,40 @@
+{
+    "label": "Open AI DALL-E",
+    "description": "Handler for running OpenAI image generation models using their API.",
+    "unique_key": "openai_dalle",
+    "script": "handler.py",
+    "skills": [
+        {
+            "label": "OpenAI DALL-E 3",
+            "routing_key": "openai_dalle_3",
+            "use": ["image_generation"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "dall-e-3"
+            }
+        },
+        {
+            "label": "OpenAI DALL-E 2",
+            "routing_key": "openai_dalle_2",
+            "use": ["image_generation"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "dall-e-2"
+            }
+        }
+    ],
+    "configuration": {
+        "vault_path": "golem/openai",
+        "options": [                        
+            {
+                "name": "token",
+                "label": "API Token",
+                "editable": true,
+                "type": "secret",
+                "default": ""
+            }    
+        ]
+    }
+}
