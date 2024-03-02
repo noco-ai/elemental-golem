@@ -4,7 +4,7 @@ safetensors==0.3.2
 sentencepiece>=0.1.97
 ninja==1.11.1
 tiktoken==0.3.3
-numpy==1.23
+numpy==1.22
 ninja
 hvac
 pynvml
@@ -24,7 +24,7 @@ diffusers
 timm
 openai
 sseclient-py
-tts
+TTS==0.22.0
 soundfile
 exllamav2
 compel
