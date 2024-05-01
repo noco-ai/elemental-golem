@@ -1,0 +1,104 @@
+{
+    "label": "LLM API",
+    "description": "Handler for accessing LLMs running on remote systems.",
+    "unique_key": "llm_api",
+    "script": "handler.py",
+    "skills": [        
+        {
+            "label": "OpenAI Compatible Endpoint",
+            "routing_key": "custom_llm_endpoint",
+            "use": ["language_model"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "none",
+                "max_seq_len": 4096,
+                "stop_on": []
+            }
+        },
+        {
+            "label": "Claude Haiku API",
+            "routing_key": "claude_haiku_api",
+            "use": ["language_model"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "claude-3-haiku-20240307",
+                "max_seq_len": 16384,
+                "api_path": "https://api.anthropic.com/v1/messages",
+                "stop_on": []
+            }
+        },
+        {
+            "label": "Claude Opus API",
+            "routing_key": "claude_opus_api",
+            "use": ["language_model"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "claude-3-opus-20240229",
+                "max_seq_len": 16384,
+                "api_path": "https://api.anthropic.com/v1/messages",
+                "stop_on": []
+            }
+        },
+        {
+            "label": "Mistral Small API",
+            "routing_key": "mistral_small_api",
+            "use": ["language_model"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "mistral-small-latest",
+                "max_seq_len": 8192,
+                "api_path": "https://api.mistral.ai/v1/chat/completions",
+                "stop_on": []
+            }
+        },
+        {
+            "label": "Mistral Medium API",
+            "routing_key": "mistral_medium_api",
+            "use": ["language_model"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "mistral-medium-latest",
+                "max_seq_len": 8192,
+                "api_path": "https://api.mistral.ai/v1/chat/completions",
+                "stop_on": []
+            }
+        },
+        {
+            "label": "Mistral Large API",
+            "routing_key": "mistral_large_api",
+            "use": ["language_model"],
+            "available_precision": { "cpu": ["full"] },
+            "memory_usage": { "full": 20 },
+            "configuration": {
+                "model": "mistral-large-latest",
+                "max_seq_len": 8192,
+                "api_path": "https://api.mistral.ai/v1/chat/completions",
+                "stop_on": []
+            }
+        }
+    ],
+    "configuration": {
+        "vault_path": "golem/llm_api",
+        "options": [            
+            {
+                "name": "api_path",
+                "label": "API Path",
+                "editable": true,
+                "type": "string",
+                "default": "http://127.0.0.1:5000/v1/chat/completions"
+            },
+            {
+                "name": "api_key",
+                "label": "API Key",
+                "editable": true,
+                "type": "secret",
+                "default": "none"
+            }
+        ]
+    }
+}
