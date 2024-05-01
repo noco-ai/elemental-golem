@@ -101,7 +101,7 @@ class ServerSideEventLlm(LlmHandler):
             accept_header = "text/event-stream" if stream_output else "application/json"
             headers["Accept"] = accept_header
             headers["Authorization"] = f"Bearer {api_key}"
-            headers["User-Agent"] = "custom-test/v0.1"
+            headers["User-Agent"] = "elemental-golem/v3"
             data["model"] = self.model_config["model"]
             if "seed" in data:
                 data["random_seed"] = seed
@@ -118,7 +118,6 @@ class ServerSideEventLlm(LlmHandler):
             headers["x-api-key"] = api_key
             headers["anthropic-version"] = "2023-06-01"
 
-        print(url)
         stream_response = requests.post(url, headers=headers, json=data, verify=verify_ssl, stream=True)
         if stream_response.status_code != 200:
             if stream_response.status_code == 401:
